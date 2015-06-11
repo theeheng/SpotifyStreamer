@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- This layout is a two-pane layout for the artist search/artist top ten flow. -->
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment_search_artist"
+        android:name="com.hengtan.nanodegreeapp.spotifystreamer.SearchArtistFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.hengtan.nanodegreeapp.spotifystreamer.SearchArtistFragment"
+        tools:layout="@layout/fragment_search_artist" />
+
+    <FrameLayout
+        android:id="@+id/artist_topten_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="4" />
+
+</LinearLayout>

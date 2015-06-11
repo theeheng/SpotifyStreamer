@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 
 /**
@@ -28,6 +29,8 @@ public class SearchArtistFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private SearchView artistSearchView;
 
     /**
      * Use this factory method to create a new instance of
@@ -64,7 +67,13 @@ public class SearchArtistFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search_artist, container, false);
+        View rootView =  inflater.inflate(R.layout.fragment_search_artist, container, false);
+
+        //Get a reference to artist search view
+        artistSearchView = (SearchView) rootView.findViewById(R.id.searchArtistView);
+        artistSearchView.setIconifiedByDefault(false);
+
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

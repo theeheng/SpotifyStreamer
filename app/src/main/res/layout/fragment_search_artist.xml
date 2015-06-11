@@ -9,7 +9,7 @@
         android:id="@+id/searchArtistView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-
+        android:inputType="text"
         android:queryHint="@string/search_by_artist_name" />
 
     <ListView

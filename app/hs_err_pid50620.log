@@ -1,0 +1,118 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1005584 bytes for Chunk::new
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (allocation.cpp:323), pid=50620, tid=44432
+#
+# JRE version: Java(TM) SE Runtime Environment (7.0_71-b14) (build 1.7.0_71-b14)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (24.71-b01 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000000007504800):  JavaThread "C2 CompilerThread0" daemon [_thread_in_native, id=44432, stack(0x0000000009f80000,0x000000000a080000)]
+
+Stack: [0x0000000009f80000,0x000000000a080000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+
+Current CompileTask:
+C2:   4001  343             com.android.dx.ssa.DeadCodeRemover::run (194 bytes)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x000000000750b000 JavaThread "Service Thread" daemon [_thread_blocked, id=46420, stack(0x0000000009ae0000,0x0000000009be0000)]
+  0x0000000007509000 JavaThread "C2 CompilerThread1" daemon [_thread_in_native, id=42004, stack(0x000000000a090000,0x000000000a190000)]
+=>0x0000000007504800 JavaThread "C2 CompilerThread0" daemon [_thread_in_native, id=44432, stack(0x0000000009f80000,0x000000000a080000)]
+  0x0000000007503800 JavaThread "Attach Listener" daemon [_thread_blocked, id=39644, stack(0x0000000009dd0000,0x0000000009ed0000)]
+  0x0000000007503000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=35040, stack(0x0000000009c00000,0x0000000009d00000)]
+  0x00000000074f1800 JavaThread "Finalizer" daemon [_thread_blocked, id=49896, stack(0x0000000009920000,0x0000000009a20000)]
+  0x00000000074f0800 JavaThread "Reference Handler" daemon [_thread_blocked, id=38152, stack(0x0000000009800000,0x0000000009900000)]
+  0x0000000001eb9000 JavaThread "main" [_thread_in_vm, id=33528, stack(0x0000000001fe0000,0x00000000020e0000)]
+
+Other Threads:
+  0x00000000074ed800 VMThread [stack: 0x0000000009650000,0x0000000009750000] [id=49724]
+  0x000000000750f800 WatcherThread [stack: 0x000000000a300000,0x000000000a400000] [id=48224]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ PSYoungGen      total 37888K, used 27392K [0x00000000f5500000, 0x00000000f7f00000, 0x0000000100000000)
+  eden space 32768K, 68% used [0x00000000f5500000,0x00000000f6ac3400,0x00000000f7500000)
+  from space 5120K, 99% used [0x00000000f7500000,0x00000000f79fce58,0x00000000f7a00000)
+  to   space 5120K, 0% used [0x00000000f7a00000,0x00000000f7a00000,0x00000000f7f00000)
+ ParOldGen       total 85504K, used 1913K [0x00000000e0000000, 0x00000000e5380000, 0x00000000f5500000)
+  object space 85504K, 2% used [0x00000000e0000000,0x00000000e01de6e8,0x00000000e5380000)
+ PSPermGen       total 21504K, used 5583K [0x00000000dae00000, 0x00000000dc300000, 0x00000000e0000000)
+  object space 21504K, 25% used [0x00000000dae00000,0x00000000db373cf8,0x00000000dc300000)
+
+Card table byte_map: [0x0000000005220000,0x0000000005350000] byte_map_base: 0x0000000004b49000
+
+Polling page: 0x0000000000130000
+
+Code Cache  [0x0000000002160000, 0x00000000023d0000, 0x0000000005160000)
+ total_blobs=576 nmethods=342 adapters=186 free_code_cache=47783Kb largest_free_block=48891712
+
+Compilation events (10 events):
+Event: 3.907 Thread 0x0000000007509000 nmethod 339 0x00000000022b5690 code [0x00000000022b57e0, 0x00000000022b5ab8]
+Event: 3.907 Thread 0x0000000007509000  340             com.android.dx.rop.code.RegisterSpecSet::equals (106 bytes)
+Event: 3.914 Thread 0x0000000007509000 nmethod 340 0x00000000022b68d0 code [0x00000000022b6a20, 0x00000000022b6dd8]
+Event: 3.914 Thread 0x0000000007509000  341             com.android.dx.ssa.back.FirstFitLocalCombiningAllocator::handleNormalUnassociated (99 bytes)
+Event: 3.915 Thread 0x0000000007504800 nmethod 338 0x00000000022b6fd0 code [0x00000000022b7960, 0x00000000022b8308]
+Event: 3.915 Thread 0x0000000007504800  342             com.android.dx.rop.code.ThrowingCstInsn::accept (8 bytes)
+Event: 3.916 Thread 0x0000000007504800 nmethod 342 0x000000000229f210 code [0x000000000229f360, 0x000000000229f3d8]
+Event: 3.916 Thread 0x0000000007504800  343             com.android.dx.ssa.DeadCodeRemover::run (194 bytes)
+Event: 3.953 Thread 0x0000000007509000 nmethod 341 0x00000000022bbbd0 code [0x00000000022bbee0, 0x00000000022bd568]
+Event: 3.953 Thread 0x0000000007509000  344   !         com.android.dx.cf.code.BytecodeArray::parseInstruction (2764 bytes)
+
+GC Heap History (2 events):
+Event: 2.192 GC heap before
+{Heap before GC invocations=1 (full 0):
+ PSYoungGen      total 37888K, used 32768K [0x00000000f5500000, 0x00000000f7f00000, 0x0000000100000000)
+  eden space 32768K, 100% used [0x00000000f5500000,0x00000000f7500000,0x00000000f7500000)
+  from space 5120K, 0% used [0x00000000f7a00000,0x00000000f7a00000,0x00000000f7f00000)
+  to   space 5120K, 0% used [0x00000000f7500000,0x00000000f7500000,0x00000000f7a00000)
+ ParOldGen       total 85504K, used 0K [0x00000000e0000000, 0x00000000e5380000, 0x00000000f5500000)
+  object space 85504K, 0% used [0x00000000e0000000,0x00000000e0000000,0x00000000e5380000)
+ PSPermGen       total 21504K, used 5542K [0x00000000dae00000, 0x00000000dc300000, 0x00000000e0000000)
+  object space 21504K, 25% used [0x00000000dae00000,0x00000000db369b70,0x00000000dc300000)
+Event: 2.678 GC heap after
+Heap after GC invocations=1 (full 0):
+ PSYoungGen      total 37888K, used 5107K [0x00000000f5500000, 0x00000000f7f00000, 0x0000000100000000)
+  eden space 32768K, 0% used [0x00000000f5500000,0x00000000f5500000,0x00000000f7500000)
+  from space 5120K, 99% used [0x00000000f7500000,0x00000000f79fce58,0x00000000f7a00000)
+  to   space 5120K, 0% used [0x00000000f7a00000,0x00000000f7a00000,0x00000000f7f00000)
+ ParOldGen       total 85504K, used 1913K [0x00000000e0000000, 0x00000000e5380000, 0x00000000f5500000)
+  object space 85504K, 2% used [0x00000000e0000000,0x00000000e01de6e8,0x00000000e5380000)
+ PSPermGen       total 21504K, used 5542K [0x00000000dae00000, 0x00000000dc300000, 0x00000000e0000000)
+  object space 21504K, 25% used [0x00000000dae00000,0x00000000db369b70,0x00000000dc300000)
+}
+
+Deoptimization events (10 events):
+Event: 1.910 Thread 0x0000000001eb9000 Uncommon trap: reason=unreached action=reinterpret pc=0x0000000002234784 method=com.android.dx.rop.code.LocalVariableExtractor.processBlock(I)V @ 195
+Event: 2.947 Thread 0x0000000001eb9000 Uncommon trap: reason=null_check action=make_not_entrant pc=0x000000000220b610 method=com.android.dx.rop.type.Type.equals(Ljava/lang/Object;)Z @ 8
+Event: 3.826 Thread 0x0000000001eb9000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x0000000002284254 method=com.android.dx.cf.code.BytecodeArray.parseInstruction(ILcom/android/dx/cf/code/BytecodeArray$Visitor;)I @ 1501
+Event: 3.826 Thread 0x0000000001eb9000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x0000000002284254 method=com.android.dx.cf.code.BytecodeArray.parseInstruction(ILcom/android/dx/cf/code/BytecodeArray$Visitor;)I @ 1501
+Event: 3.834 Thread 0x0000000001eb9000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x0000000002284fd4 method=com.android.dx.cf.code.BytecodeArray.parseInstruction(ILcom/android/dx/cf/code/BytecodeArray$Visitor;)I @ 1130
+Event: 3.834 Thread 0x0000000001eb9000 Uncommon trap: reason=bimorphic action=maybe_recompile pc=0x0000000002284fd4 method=com.android.dx.cf.code.BytecodeArray.parseInstruction(ILcom/android/dx/cf/code/BytecodeArray$Visitor;)I @ 1130
+Event: 3.863 Thread 0x0000000001eb9000 Uncommon trap: reason=unloaded action=reinterpret pc=0x0000000002275a80 method=com.android.dx.cf.cst.ConstantPoolParser.parse0(ILjava/util/BitSet;)Lcom/android/dx/rop/cst/Constant; @ 220
+Event: 3.906 Thread 0x0000000001eb9000 Uncommon trap: reason=unreached action=reinterpret pc=0x000000000227f740 method=com.android.dx.cf.code.BaseMachine.getLocalTarget(Z)Lcom/android/dx/rop/code/RegisterSpec; @ 131
+Event: 3.921 Thread 0x0000000001eb9000 Uncommon trap: reason=unreached action=reinterpret pc=0x000000000222f084 method=com.android.dx.ssa.LocalVariableExtractor.processBlock(I)V @ 251
