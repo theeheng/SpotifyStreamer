@@ -7,7 +7,19 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SearchView;
+
+import java.util.List;
+
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.Artists;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 /**
@@ -72,10 +84,56 @@ public class SearchArtistFragment extends Fragment {
         //Get a reference to artist search view
         artistSearchView = (SearchView) rootView.findViewById(R.id.searchArtistView);
         artistSearchView.setIconifiedByDefault(false);
-
+        artistSearchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SearchArtistFragment.this.onSearchArtistBtnClick((View) view);
+            }
+        });
         return rootView;
     }
 
+    private void onSearchArtistBtnClick(View view) {
+
+
+        SpotifyApi api = new SpotifyApi();
+
+// Most (but not all) of the Spotify Web API endpoints require authorisation.
+// If you know you'll only use the ones that don't require authorisation you can skip this step
+       // api.setAccessToken("myAccessToken");
+
+        SpotifyService spotify = api.getService();
+
+        spotify.searchArtists(artistSearchView.getQuery().toString(), new Callback<ArtistsPager>() {
+            @Override
+            public void success(final ArtistsPager artistsPager, Response response) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showArtists(artistsPager.artists.items);
+                    }
+                });
+            }
+
+            @Override
+            public void failure(final RetrofitError error) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showErrorMessage(error.getMessage());
+                    }
+                });
+            }
+        });
+    }
+
+    public void showArtists(List<Artist> item)
+    {}
+
+    public void showErrorMessage(String errorMessage)
+    {
+
+    }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
