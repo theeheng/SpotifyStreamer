@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 
 import java.util.List;
@@ -84,12 +87,40 @@ public class SearchArtistFragment extends Fragment {
         //Get a reference to artist search view
         artistSearchView = (SearchView) rootView.findViewById(R.id.searchArtistView);
         artistSearchView.setIconifiedByDefault(false);
+        artistSearchView.setSubmitButtonEnabled(true);
+
+        int magId = getResources().getIdentifier("android:id/search_mag_icon", null, null);
+        ImageView magImage = (ImageView) artistSearchView.findViewById(magId);
+        magImage.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
+
+
         artistSearchView.setOnSearchClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                SearchArtistFragment.this.onSearchArtistBtnClick((View) view);
+
+                Log.d("Search click ","Search click");
+                //SearchArtistFragment.this.onSearchArtistBtnClick((View) view);
             }
         });
+
+        artistSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener()
+        {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d("Search text submit", query);
+                SearchArtistFragment.this.onSearchArtistBtnClick(null);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // TODO Auto-generated method stub
+                Log.d("Search text change", newText);
+                return false;
+            }
+        });
+
         return rootView;
     }
 
