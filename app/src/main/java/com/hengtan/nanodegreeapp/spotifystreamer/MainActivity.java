@@ -1,13 +1,13 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends AppCompatActivity implements SearchArtistFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements SearchArtistFragment.SearchArtistFragmentCallback, TopTenTracksFragment.TopTenTracksFragmentCallback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String TOPTENFRAGMENT_TAG = "TTFTAG";
@@ -19,23 +19,20 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(findViewById(R.id.artist_topten_container) != null)
-        {
+        if (findViewById(R.id.artist_top_ten_container) != null) {
             mTwoPane = true;
 
-            if(savedInstanceState == null)
-            {
+            if (savedInstanceState == null) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.artist_topten_container, new TopTenTracksFragment(), TOPTENFRAGMENT_TAG)
+                        .replace(R.id.artist_top_ten_container, new TopTenTracksFragment(), TOPTENFRAGMENT_TAG)
                         .commit();
             }
-        }else {
+        } else {
             mTwoPane = false;
             getSupportActionBar().setElevation(0f);
         }
 
-        SearchArtistFragment searchArtistFragment = ((SearchArtistFragment)getFragmentManager().findFragmentById(R.id.fragment_search_artist));
-
+        SearchArtistFragment searchArtistFragment = ((SearchArtistFragment) getFragmentManager().findFragmentById(R.id.fragment_search_artist));
 
 
     }
@@ -63,7 +60,28 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onArtistSelected(String artistId) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putString(TopTenTracksFragment.ARTIST_ID, artistId);
 
+            TopTenTracksFragment fragment = new TopTenTracksFragment();
+            fragment.setArguments(args);
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.artist_top_ten_container, fragment, TOPTENFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, TopTenActivity.class)
+                    .putExtra(TopTenTracksFragment.ARTIST_ID, artistId);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onTrackSelected(String artistId) {
     }
 }

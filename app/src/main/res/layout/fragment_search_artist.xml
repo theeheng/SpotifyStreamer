@@ -10,7 +10,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:inputType="text"
-        android:queryHint="@string/search_by_artist_name" />
+        android:queryHint="@string/search_by_artist_name"
+        />
 
     <ListView
         android:layout_width="wrap_content"
