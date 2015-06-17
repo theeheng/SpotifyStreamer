@@ -83,9 +83,15 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
         {
             InitViewControlFromView(v);
 
-            if(mImgView != null && track.getThumbnailImage() != null)
+            if(mImgView != null)
             {
-                Glide.with(getContext()).load(track.getThumbnailImage()).into(mImgView);
+                if(track.getThumbnailImage() != null && (!track.getThumbnailImage().equals(""))) {
+                    Glide.with(getContext()).load(track.getThumbnailImage()).into(mImgView);
+                }
+                else
+                {
+                    Glide.with(getContext()).load(R.mipmap.ic_default_art).into(mImgView);
+                }
             }
 
             if(mTopTextView != null) {
@@ -106,9 +112,15 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
         {
             InitViewControlFromView(v);
 
-            if(mImgView != null && artist.getThumbnailImage() != null)
+            if(mImgView != null)
             {
-                Glide.with(getContext()).load(artist.getThumbnailImage()).into(mImgView);
+                if(artist.getThumbnailImage() != null && (!artist.getThumbnailImage().equals(""))) {
+                    Glide.with(getContext()).load(artist.getThumbnailImage()).into(mImgView);
+                }
+                else
+                {
+                    Glide.with(getContext()).load(R.mipmap.ic_default_art).into(mImgView);
+                }
             }
 
             if(mTopTextView != null) {

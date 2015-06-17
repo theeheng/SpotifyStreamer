@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.bumptech.glide.load.engine.Resource;
@@ -33,6 +34,7 @@ public class TopTenTracksFragment extends Fragment {
     private String mArtistId;
     private String mCountryCode;
     private ListView mTopTenListView;
+    private FrameLayout progressBarHolder;
     private ArrayList<ParcelableTrack> mTrackList;
 
     /**
@@ -57,6 +59,8 @@ public class TopTenTracksFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
+
+        progressBarHolder = (FrameLayout) view.findViewById(R.id.progressBarHolder);
 
         mTopTenListView = (ListView) view.findViewById(R.id.topTenListView);
 
@@ -93,6 +97,7 @@ public class TopTenTracksFragment extends Fragment {
 
                 if(arguments != null)
                 {
+                    ProgressBarHelper.ShowProgressBar(progressBarHolder);
                     mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
                     GetTracks(GetCountryCodeFromPreference());
                 }
@@ -124,6 +129,8 @@ public class TopTenTracksFragment extends Fragment {
                     @Override
                     public void run() {
 
+                        ProgressBarHelper.HideProgressBar(progressBarHolder);
+
                         mTrackList.clear();
 
                         for (Track track : result.tracks) {
@@ -140,6 +147,9 @@ public class TopTenTracksFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        ProgressBarHelper.HideProgressBar(progressBarHolder);
+
                         String err = error.getMessage();
                     }
                 });

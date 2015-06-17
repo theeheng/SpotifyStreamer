@@ -6,7 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -28,6 +30,7 @@ public class SearchArtistFragment extends Fragment {
 
     private SearchView artistSearchView;
     private ListView artistListView;
+    private FrameLayout progressBarHolder;
     private ArrayList<ParcelableArtist> mArtistList;
     private String ARTIST_KEY = "artist_list";
 
@@ -54,6 +57,8 @@ public class SearchArtistFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_search_artist, container, false);
+
+        progressBarHolder = (FrameLayout) rootView.findViewById(R.id.progressBarHolder);
 
         artistListView = (ListView) rootView.findViewById(R.id.artistListView);
         artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -99,7 +104,7 @@ public class SearchArtistFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // TODO Auto-generated method stub
-                Log.d("Search text change", newText);
+                //Log.d("Search text change", newText);
                 return false;
             }
         });
@@ -124,6 +129,8 @@ public class SearchArtistFragment extends Fragment {
 
     private void onSearchArtistBtnClick(View view) {
 
+        ProgressBarHelper.ShowProgressBar(progressBarHolder);
+
         SpotifyApi api = new SpotifyApi();
 
 // Most (but not all) of the Spotify Web API endpoints require authorisation.
@@ -138,6 +145,8 @@ public class SearchArtistFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        ProgressBarHelper.HideProgressBar(progressBarHolder);
 
                         mArtistList.clear();
 
@@ -155,6 +164,9 @@ public class SearchArtistFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        ProgressBarHelper.HideProgressBar(progressBarHolder);
+
                         ShowErrorMessage(error.getMessage());
                     }
                 });
