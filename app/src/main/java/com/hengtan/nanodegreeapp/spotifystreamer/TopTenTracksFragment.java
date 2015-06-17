@@ -56,15 +56,7 @@ public class TopTenTracksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mCountryCode = sharedPrefs.getString("country_code_list", "");
-
         View view = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
-
-        if(mCountryCode.length() == 0)
-        {
-            mCountryCode = view.getContext().getResources().getConfiguration().locale.getCountry();
-        }
 
         mTopTenListView = (ListView) view.findViewById(R.id.topTenListView);
 
@@ -102,8 +94,7 @@ public class TopTenTracksFragment extends Fragment {
                 if(arguments != null)
                 {
                     mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
-
-                    GetTracks();
+                    GetTracks(GetCountryCodeFromPreference());
                 }
 
             }
@@ -112,7 +103,7 @@ public class TopTenTracksFragment extends Fragment {
         return view;
     }
 
-    private void GetTracks()
+    private void GetTracks(String countryCode)
     {
         SpotifyApi api = new SpotifyApi();
 
@@ -123,8 +114,8 @@ public class TopTenTracksFragment extends Fragment {
         SpotifyService spotify = api.getService();
 
         Map<String, Object> fieldMap = new HashMap<String, Object>();
-
-        fieldMap.put("country",mCountryCode);
+        mCountryCode = countryCode;
+        fieldMap.put("country", mCountryCode);
 
         spotify.getArtistTopTrack(mArtistId, fieldMap, new retrofit.Callback<Tracks>() {
             @Override
@@ -135,7 +126,7 @@ public class TopTenTracksFragment extends Fragment {
 
                         mTrackList.clear();
 
-                        for(Track track : result.tracks) {
+                        for (Track track : result.tracks) {
                             ParcelableTrack pt = new ParcelableTrack(track);
                             mTrackList.add(pt);
                         }
@@ -172,5 +163,30 @@ public class TopTenTracksFragment extends Fragment {
             outState.putParcelableArrayList(TRACK_KEY, mTrackList);
         }
         super.onSaveInstanceState(outState);
+    }
+
+    public void UpdateTopTenListOnPreferenceUpdate()
+    {
+        String selectecCountryCode = GetCountryCodeFromPreference();
+
+        if(!selectecCountryCode.equals(mCountryCode))
+        {
+            GetTracks(selectecCountryCode);
+            ShowTracks();
+        }
+    }
+
+    public String GetCountryCodeFromPreference()
+    {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String tempCountryCode = sharedPrefs.getString("country_code_list", "");
+
+        if(tempCountryCode.length() == 0)
+        {
+            return getActivity().getResources().getConfiguration().locale.getCountry();
+        } else
+        {
+            return tempCountryCode;
+        }
     }
 }

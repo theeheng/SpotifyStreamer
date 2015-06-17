@@ -5,15 +5,19 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements SearchArtistFragment.SearchArtistFragmentCallback, TopTenTracksFragment.TopTenTracksFragmentCallback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String TOPTENFRAGMENT_TAG = "TTFTAG";
-    private static final int RESULT_SETTINGS = 1;
+    public static final int RESULT_SETTINGS = 1;
 
     private boolean mTwoPane;
+
+    private TopTenTracksFragment mTopTenFragment;
+    private SearchArtistFragment mSearchArtistFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +28,11 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
             mTwoPane = true;
 
             if (savedInstanceState == null) {
+
+                mTopTenFragment = new TopTenTracksFragment();
+
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.artist_top_ten_container, new TopTenTracksFragment(), TOPTENFRAGMENT_TAG)
+                        .replace(R.id.artist_top_ten_container, mTopTenFragment , TOPTENFRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -33,8 +40,7 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
             getSupportActionBar().setElevation(0f);
         }
 
-        SearchArtistFragment searchArtistFragment = ((SearchArtistFragment) getFragmentManager().findFragmentById(R.id.fragment_search_artist));
-
+        mSearchArtistFragment = ((SearchArtistFragment) getFragmentManager().findFragmentById(R.id.fragment_search_artist));
 
     }
 
@@ -71,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
             Bundle args = new Bundle();
             args.putString(TopTenTracksFragment.ARTIST_ID, artistId);
 
-            TopTenTracksFragment fragment = new TopTenTracksFragment();
-            fragment.setArguments(args);
+            this.mTopTenFragment = new TopTenTracksFragment();
+            mTopTenFragment.setArguments(args);
 
             getFragmentManager().beginTransaction()
-                    .replace(R.id.artist_top_ten_container, fragment, TOPTENFRAGMENT_TAG)
+                    .replace(R.id.artist_top_ten_container, mTopTenFragment, TOPTENFRAGMENT_TAG)
                     .commit();
         } else {
             Intent intent = new Intent(this, TopTenActivity.class)
@@ -85,6 +91,23 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
     }
 
     @Override
-    public void onTrackSelected(String artistId) {
+    public void onTrackSelected(String trackId) {
+        Toast.makeText(getApplicationContext(), "Track Id : " + trackId,
+                Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (mTwoPane) {
+            switch (requestCode) {
+                case MainActivity.RESULT_SETTINGS:
+                    mTopTenFragment.UpdateTopTenListOnPreferenceUpdate();
+                    break;
+
+            }
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -8,6 +9,8 @@ import android.widget.Toast;
 
 
 public class TopTenActivity extends AppCompatActivity implements TopTenTracksFragment.TopTenTracksFragmentCallback {
+
+    private TopTenTracksFragment mTopTenFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,10 +22,10 @@ public class TopTenActivity extends AppCompatActivity implements TopTenTracksFra
             Bundle arguments = new Bundle();
             arguments.putString(TopTenTracksFragment.ARTIST_ID, getIntent().getStringExtra(TopTenTracksFragment.ARTIST_ID));
 
-            TopTenTracksFragment fragment = new TopTenTracksFragment();
-            fragment.setArguments(arguments);
+            this.mTopTenFragment = new TopTenTracksFragment();
+            this.mTopTenFragment.setArguments(arguments);
 
-            getFragmentManager().beginTransaction().add(R.id.artist_top_ten_container, fragment).commit();
+            getFragmentManager().beginTransaction().add(R.id.artist_top_ten_container, mTopTenFragment).commit();
         }
     }
 
@@ -42,6 +45,8 @@ public class TopTenActivity extends AppCompatActivity implements TopTenTracksFra
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, SettingsActivity.class);
+            startActivityForResult(i, MainActivity.RESULT_SETTINGS);
             return true;
         }
 
@@ -52,5 +57,18 @@ public class TopTenActivity extends AppCompatActivity implements TopTenTracksFra
     public void onTrackSelected(String trackId) {
         Toast.makeText(getApplicationContext(), "Track Id : " + trackId,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case MainActivity.RESULT_SETTINGS:
+                mTopTenFragment.UpdateTopTenListOnPreferenceUpdate();
+                break;
+
+        }
+
     }
 }
