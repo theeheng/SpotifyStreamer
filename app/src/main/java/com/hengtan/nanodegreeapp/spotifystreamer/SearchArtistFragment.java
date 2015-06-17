@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -27,7 +28,8 @@ public class SearchArtistFragment extends Fragment {
 
     private SearchView artistSearchView;
     private ListView artistListView;
-
+    private ArrayList<ParcelableArtist> mArtistList;
+    private String ARTIST_KEY = "artist_list";
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -49,6 +51,7 @@ public class SearchArtistFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_search_artist, container, false);
 
@@ -59,7 +62,7 @@ public class SearchArtistFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
-                Artist artist = (Artist) adapterView.getItemAtPosition(position);
+                ParcelableArtist artist = (ParcelableArtist) adapterView.getItemAtPosition(position);
                 if (artist != null) {
                     ((SearchArtistFragmentCallback) getActivity()).onArtistSelected(artist.id);
                 }
@@ -80,13 +83,12 @@ public class SearchArtistFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                Log.d("Search click ","Search click");
+                Log.d("Search click ", "Search click");
                 //SearchArtistFragment.this.onSearchArtistBtnClick((View) view);
             }
         });
 
-        artistSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener()
-        {
+        artistSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.d("Search text submit", query);
@@ -101,6 +103,21 @@ public class SearchArtistFragment extends Fragment {
                 return false;
             }
         });
+
+        // If there's instance state, mine it for useful information.
+        // The end-goal here is that the user never knows that turning their device sideways
+        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*.
+        if (savedInstanceState != null && savedInstanceState.containsKey(ARTIST_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mArtistList = savedInstanceState.getParcelableArrayList(ARTIST_KEY);
+            showArtists();
+        }
+        else {
+            mArtistList = new ArrayList<ParcelableArtist>();
+        }
 
         return rootView;
     }
@@ -122,7 +139,14 @@ public class SearchArtistFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        showArtists(artistsPager.artists.items);
+
+                        mArtistList.clear();
+
+                        for(Artist artist : artistsPager.artists.items) {
+                            ParcelableArtist pa = new ParcelableArtist(artist);
+                            mArtistList.add(pa);
+                        }
+                        showArtists();
                     }
                 });
             }
@@ -139,9 +163,9 @@ public class SearchArtistFragment extends Fragment {
         });
     }
 
-    public void showArtists(List<Artist> artists)
+    public void showArtists()
     {
-        ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, artists);
+        ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mArtistList);
         adapter.InitAdapterType(ListViewAdapter.AdapterType.ARTIST_SEARCH);
         artistListView.setAdapter(adapter);
     }
@@ -149,6 +173,17 @@ public class SearchArtistFragment extends Fragment {
     public void showErrorMessage(String errorMessage)
     {
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mArtistList != null && mArtistList.size() > 0) {
+            outState.putParcelableArrayList(ARTIST_KEY, mArtistList);
+        }
+        super.onSaveInstanceState(outState);
     }
 
 }

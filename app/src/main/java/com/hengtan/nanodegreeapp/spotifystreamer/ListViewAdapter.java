@@ -26,7 +26,7 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
 
     //declaring our List of artists
     private List<T> mObjects;
-    private List<Artist> mArtists;
+    private List<ParcelableArtist> mArtists;
     private List<Track> mTracks;
     private ImageView mImgView;
     private TextView mTopTextView;
@@ -49,7 +49,7 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
     {
         switch (mType)
         {
-            case ARTIST_SEARCH: mArtists = (List<Artist>) mObjects; break;
+            case ARTIST_SEARCH: mArtists = (List<ParcelableArtist>) mObjects; break;
             case TOP_TEN_TRACKS: mTracks = (List<Track>) mObjects; break;
             default: break;
         }
@@ -103,18 +103,15 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
     }
 
     private void DisplayArtistList(View v, int position) {
-        Artist artist = mArtists.get(position);
+        ParcelableArtist artist = mArtists.get(position);
 
         if(artist != null)
         {
             InitViewControlFromView(v);
 
-            if(mImgView != null && artist.images.size() > 0)
+            if(mImgView != null && artist.getThumbnailImage() != null)
             {
-                if( artist.images.size() >= 3)
-                    Glide.with(getContext()).load(artist.images.get(2).url).into(mImgView);
-                else
-                    Glide.with(getContext()).load(artist.images.get(0).url).into(mImgView);
+                Glide.with(getContext()).load(artist.getThumbnailImage()).into(mImgView);
             }
 
             if(mTopTextView != null) {
