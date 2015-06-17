@@ -11,6 +11,7 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String TOPTENFRAGMENT_TAG = "TTFTAG";
+    private static final int RESULT_SETTINGS = 1;
 
     private boolean mTwoPane;
 
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, SettingsActivity.class);
+            startActivityForResult(i, RESULT_SETTINGS);
             return true;
         }
 

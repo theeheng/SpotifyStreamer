@@ -1,13 +1,17 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.bumptech.glide.load.engine.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +31,7 @@ public class TopTenTracksFragment extends Fragment {
     static final String ARTIST_ID = "ARTISTID";
     private String TRACK_KEY = "track_list";
     private String mArtistId;
+    private String mCountryCode;
     private ListView mTopTenListView;
     private ArrayList<ParcelableTrack> mTrackList;
 
@@ -43,6 +48,7 @@ public class TopTenTracksFragment extends Fragment {
     }
 
     public TopTenTracksFragment() {
+
     }
 
 
@@ -50,7 +56,15 @@ public class TopTenTracksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mCountryCode = sharedPrefs.getString("country_code_list", "");
+
         View view = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
+
+        if(mCountryCode.length() == 0)
+        {
+            mCountryCode = view.getContext().getResources().getConfiguration().locale.getCountry();
+        }
 
         mTopTenListView = (ListView) view.findViewById(R.id.topTenListView);
 
@@ -89,52 +103,57 @@ public class TopTenTracksFragment extends Fragment {
                 {
                     mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
 
-                    SpotifyApi api = new SpotifyApi();
-
-                    // Most (but not all) of the Spotify Web API endpoints require authorisation.
-                    // If you know you'll only use the ones that don't require authorisation you can skip this step
-                    // api.setAccessToken("myAccessToken");
-
-                    SpotifyService spotify = api.getService();
-
-                    Map<String, Object> fieldMap = new HashMap<String, Object>();
-
-                    fieldMap.put("country","GB");
-
-                    spotify.getArtistTopTrack(mArtistId, fieldMap, new retrofit.Callback<Tracks>() {
-                        @Override
-                        public void success(final Tracks result, Response response) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    mTrackList.clear();
-
-                                    for(Track track : result.tracks) {
-                                        ParcelableTrack pt = new ParcelableTrack(track);
-                                        mTrackList.add(pt);
-                                    }
-                                    ShowTracks();
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void failure(final RetrofitError error) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    String err = error.getMessage();
-                                }
-                            });
-                        }
-                    });
+                    GetTracks();
                 }
 
             }
 
 
         return view;
+    }
+
+    private void GetTracks()
+    {
+        SpotifyApi api = new SpotifyApi();
+
+        // Most (but not all) of the Spotify Web API endpoints require authorisation.
+        // If you know you'll only use the ones that don't require authorisation you can skip this step
+        // api.setAccessToken("myAccessToken");
+
+        SpotifyService spotify = api.getService();
+
+        Map<String, Object> fieldMap = new HashMap<String, Object>();
+
+        fieldMap.put("country",mCountryCode);
+
+        spotify.getArtistTopTrack(mArtistId, fieldMap, new retrofit.Callback<Tracks>() {
+            @Override
+            public void success(final Tracks result, Response response) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        mTrackList.clear();
+
+                        for(Track track : result.tracks) {
+                            ParcelableTrack pt = new ParcelableTrack(track);
+                            mTrackList.add(pt);
+                        }
+                        ShowTracks();
+                    }
+                });
+            }
+
+            @Override
+            public void failure(final RetrofitError error) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String err = error.getMessage();
+                    }
+                });
+            }
+        });
     }
 
     private void ShowTracks()
