@@ -27,7 +27,7 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
     //declaring our List of artists
     private List<T> mObjects;
     private List<ParcelableArtist> mArtists;
-    private List<Track> mTracks;
+    private List<ParcelableTrack> mTracks;
     private ImageView mImgView;
     private TextView mTopTextView;
     private TextView mBottomTextView;
@@ -50,7 +50,7 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
         switch (mType)
         {
             case ARTIST_SEARCH: mArtists = (List<ParcelableArtist>) mObjects; break;
-            case TOP_TEN_TRACKS: mTracks = (List<Track>) mObjects; break;
+            case TOP_TEN_TRACKS: mTracks = (List<ParcelableTrack>) mObjects; break;
             default: break;
         }
     }
@@ -77,27 +77,24 @@ public class ListViewAdapter<T> extends ArrayAdapter<T> {
 
     private void DisplayTopTenList(View v, int position) {
 
-        Track track = mTracks.get(position);
+        ParcelableTrack track = mTracks.get(position);
 
         if(track != null)
         {
             InitViewControlFromView(v);
 
-            if(mImgView != null && track.album != null && track.album.images != null && track.album.images.size() > 0)
+            if(mImgView != null && track.getThumbnailImage() != null)
             {
-                if(track.album.images.size() >= 3)
-                    Glide.with(getContext()).load(track.album.images.get(2).url).into(mImgView);
-                else
-                    Glide.with(getContext()).load(track.album.images.get(0).url).into(mImgView);
+                Glide.with(getContext()).load(track.getThumbnailImage()).into(mImgView);
             }
 
             if(mTopTextView != null) {
                 mTopTextView.setText(track.name);
             }
 
-            if(mBottomTextView != null && track.album != null) {
+            if(mBottomTextView != null && track.getalbumName() != null) {
                 mBottomTextView.setVisibility(View.VISIBLE);
-                mBottomTextView.setText(track.album.name);
+                mBottomTextView.setText(track.getalbumName());
             }
         }
     }

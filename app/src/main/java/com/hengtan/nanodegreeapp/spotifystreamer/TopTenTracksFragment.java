@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,9 +25,10 @@ import retrofit.client.Response;
 public class TopTenTracksFragment extends Fragment {
 
     static final String ARTIST_ID = "ARTISTID";
-
+    private String TRACK_KEY = "track_list";
     private String mArtistId;
     private ListView mTopTenListView;
+    private ArrayList<ParcelableTrack> mTrackList;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -64,52 +67,91 @@ public class TopTenTracksFragment extends Fragment {
             }
         });
 
-        Bundle arguments = getArguments();
 
-        if(arguments != null)
-        {
-            mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
 
-            SpotifyApi api = new SpotifyApi();
+            // If there's instance state, mine it for useful information.
+            // The end-goal here is that the user never knows that turning their device sideways
+            // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+            // or magically appeared to take advantage of room, but data or place in the app was never
+            // actually *lost*.
+            if (savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY)) {
+                // The listview probably hasn't even been populated yet.  Actually perform the
+                // swapout in onLoadFinished.
+                mTrackList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
+                ShowTracks();
+            }
+            else {
+                mTrackList = new ArrayList<ParcelableTrack>();
 
-// Most (but not all) of the Spotify Web API endpoints require authorisation.
-// If you know you'll only use the ones that don't require authorisation you can skip this step
-            // api.setAccessToken("myAccessToken");
+                Bundle arguments = getArguments();
 
-            SpotifyService spotify = api.getService();
+                if(arguments != null)
+                {
+                    mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
 
-            Map<String, Object> fieldMap = new HashMap<String, Object>();
+                    SpotifyApi api = new SpotifyApi();
 
-            fieldMap.put("country","GB");
+                    // Most (but not all) of the Spotify Web API endpoints require authorisation.
+                    // If you know you'll only use the ones that don't require authorisation you can skip this step
+                    // api.setAccessToken("myAccessToken");
 
-            spotify.getArtistTopTrack(mArtistId, fieldMap, new retrofit.Callback<Tracks>() {
-                @Override
-                public void success(final Tracks result, Response response) {
-                    getActivity().runOnUiThread(new Runnable() {
+                    SpotifyService spotify = api.getService();
+
+                    Map<String, Object> fieldMap = new HashMap<String, Object>();
+
+                    fieldMap.put("country","GB");
+
+                    spotify.getArtistTopTrack(mArtistId, fieldMap, new retrofit.Callback<Tracks>() {
                         @Override
-                        public void run() {
+                        public void success(final Tracks result, Response response) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                            ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, result.tracks);
-                            adapter.InitAdapterType(ListViewAdapter.AdapterType.TOP_TEN_TRACKS);
-                            mTopTenListView.setAdapter(adapter);
+                                    mTrackList.clear();
 
+                                    for(Track track : result.tracks) {
+                                        ParcelableTrack pt = new ParcelableTrack(track);
+                                        mTrackList.add(pt);
+                                    }
+                                    ShowTracks();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void failure(final RetrofitError error) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String err = error.getMessage();
+                                }
+                            });
                         }
                     });
                 }
 
-                @Override
-                public void failure(final RetrofitError error) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String err = error.getMessage();
-                        }
-                    });
-                }
-            });
-        }
+            }
+
 
         return view;
     }
 
+    private void ShowTracks()
+    {
+        ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mTrackList);
+        adapter.InitAdapterType(ListViewAdapter.AdapterType.TOP_TEN_TRACKS);
+        mTopTenListView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mTrackList != null && mTrackList.size() > 0) {
+            outState.putParcelableArrayList(TRACK_KEY, mTrackList);
+        }
+        super.onSaveInstanceState(outState);
+    }
 }

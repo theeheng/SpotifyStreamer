@@ -16,6 +16,18 @@ public class ParcelableArtist extends Artist implements Parcelable {
     private String thumbnailImage;
     private List<String> mParcelableString;
 
+    private enum ParcelableArtistIndex
+    {
+        ARTIST_ID(0), ARTIST_NAME(1), ARTIST_THUMBNAIL(2);
+
+        private int value;
+
+        private ParcelableArtistIndex(int value)
+        {
+            this.value = value;
+        }
+    };
+
     ParcelableArtist(Artist artist)
     {
         this.id = artist.id;
@@ -24,10 +36,10 @@ public class ParcelableArtist extends Artist implements Parcelable {
     }
 
     ParcelableArtist(Parcel in) {
-        in.readStringList(mParcelableString);
-        this.id = mParcelableString.get(0);
-        this.name = mParcelableString.get(1);
-        this.thumbnailImage = mParcelableString.get(2);
+        in.readStringList(this.mParcelableString);
+        this.id = mParcelableString.get(ParcelableArtistIndex.ARTIST_ID.ordinal());
+        this.name = mParcelableString.get(ParcelableArtistIndex.ARTIST_NAME.ordinal());
+        this.thumbnailImage = mParcelableString.get(ParcelableArtistIndex.ARTIST_THUMBNAIL.ordinal());
     }
 
     public void setThumbnailImage(String value) {
@@ -72,9 +84,9 @@ public class ParcelableArtist extends Artist implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
 
         ArrayList<String> values = new ArrayList<String>();
-        values.add(id);
-        values.add(name);
-        values.add(thumbnailImage);
+        values.add(ParcelableArtistIndex.ARTIST_ID.ordinal(),this.id);
+        values.add(ParcelableArtistIndex.ARTIST_NAME.ordinal(),this.name);
+        values.add(ParcelableArtistIndex.ARTIST_THUMBNAIL.ordinal(),getThumbnailImage());
         dest.writeStringList(values);
     }
 

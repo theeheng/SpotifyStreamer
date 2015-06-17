@@ -113,7 +113,7 @@ public class SearchArtistFragment extends Fragment {
             // The listview probably hasn't even been populated yet.  Actually perform the
             // swapout in onLoadFinished.
             mArtistList = savedInstanceState.getParcelableArrayList(ARTIST_KEY);
-            showArtists();
+            ShowArtists();
         }
         else {
             mArtistList = new ArrayList<ParcelableArtist>();
@@ -123,7 +123,6 @@ public class SearchArtistFragment extends Fragment {
     }
 
     private void onSearchArtistBtnClick(View view) {
-
 
         SpotifyApi api = new SpotifyApi();
 
@@ -142,11 +141,11 @@ public class SearchArtistFragment extends Fragment {
 
                         mArtistList.clear();
 
-                        for(Artist artist : artistsPager.artists.items) {
+                        for (Artist artist : artistsPager.artists.items) {
                             ParcelableArtist pa = new ParcelableArtist(artist);
                             mArtistList.add(pa);
                         }
-                        showArtists();
+                        ShowArtists();
                     }
                 });
             }
@@ -156,21 +155,21 @@ public class SearchArtistFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        showErrorMessage(error.getMessage());
+                        ShowErrorMessage(error.getMessage());
                     }
                 });
             }
         });
     }
 
-    public void showArtists()
+    public void ShowArtists()
     {
         ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mArtistList);
         adapter.InitAdapterType(ListViewAdapter.AdapterType.ARTIST_SEARCH);
         artistListView.setAdapter(adapter);
     }
 
-    public void showErrorMessage(String errorMessage)
+    public void ShowErrorMessage(String errorMessage)
     {
 
     }
