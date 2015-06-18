@@ -8,7 +8,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_top_ten">TopTenActivity</string>
 
-    <string name="hello_world">Hello world!</string>
+    <string name="unable_to_connect_to_spotify">Sorry we are unable to connect to spotify at the moment, please try again later.</string>
+    <string name="no_artist_found">Sorry no artist found.</string>
+    <string name="no_track_found">Sorry no top ten tracks found.</string>
 
     <!-- Country Name in English -->
     <string name="country_AF">Afghanistan</string>

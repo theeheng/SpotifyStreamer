@@ -17,13 +17,13 @@
             android:queryHint="@string/search_by_artist_name"
             />
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/artistRecyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/artistListView"
             android:layout_below="@+id/searchArtistView"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"/>
 
     </RelativeLayout>
 

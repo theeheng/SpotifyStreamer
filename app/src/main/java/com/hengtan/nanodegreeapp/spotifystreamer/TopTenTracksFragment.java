@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.Resource;
 
@@ -36,6 +38,7 @@ public class TopTenTracksFragment extends Fragment {
     private ListView mTopTenListView;
     private FrameLayout progressBarHolder;
     private ArrayList<ParcelableTrack> mTrackList;
+    private Toast toastMessage;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -99,7 +102,7 @@ public class TopTenTracksFragment extends Fragment {
                 {
                     ProgressBarHelper.ShowProgressBar(progressBarHolder);
                     mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
-                    GetTracks(GetCountryCodeFromPreference());
+                    GetTracks(GetCountryCodeFromPreference(), false);
                 }
 
             }
@@ -108,7 +111,7 @@ public class TopTenTracksFragment extends Fragment {
         return view;
     }
 
-    private void GetTracks(String countryCode)
+    private void GetTracks(String countryCode, final boolean twoPane)
     {
         SpotifyApi api = new SpotifyApi();
 
@@ -130,14 +133,32 @@ public class TopTenTracksFragment extends Fragment {
                     public void run() {
 
                         ProgressBarHelper.HideProgressBar(progressBarHolder);
-
                         mTrackList.clear();
+                        if(result.tracks.size() > 0)
+                        {
+                            for (Track track : result.tracks) {
+                                ParcelableTrack pt = new ParcelableTrack(track);
+                                mTrackList.add(pt);
+                            }
 
-                        for (Track track : result.tracks) {
-                            ParcelableTrack pt = new ParcelableTrack(track);
-                            mTrackList.add(pt);
+                            ShowTracks();
+
                         }
-                        ShowTracks();
+                        else
+                        {
+                            if(twoPane)
+                            {
+                                ShowTracks();
+                                DisplayToastMessage(getActivity().getResources().getString(R.string.no_track_found));
+                            }
+                            else
+                            {
+                                getActivity().finish();
+                                DisplayToastMessage(getActivity().getResources().getString(R.string.no_track_found));
+
+                            }
+                        }
+
                     }
                 });
             }
@@ -149,8 +170,7 @@ public class TopTenTracksFragment extends Fragment {
                     public void run() {
 
                         ProgressBarHelper.HideProgressBar(progressBarHolder);
-
-                        String err = error.getMessage();
+                        ShowErrorMessage(error.getMessage());
                     }
                 });
             }
@@ -164,6 +184,12 @@ public class TopTenTracksFragment extends Fragment {
         mTopTenListView.setAdapter(adapter);
     }
 
+    public void ShowErrorMessage(String errorMessage)
+    {
+        String tmpMessage  = getActivity().getResources().getString(R.string.unable_to_connect_to_spotify)+ " : " + errorMessage;
+        DisplayToastMessage(tmpMessage);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // When tablets rotate, the currently selected list item needs to be saved.
@@ -175,15 +201,23 @@ public class TopTenTracksFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    public void UpdateTopTenListOnPreferenceUpdate()
+    public void UpdateTopTenTracksOnPreferenceUpdate()
     {
         String selectecCountryCode = GetCountryCodeFromPreference();
 
         if(!selectecCountryCode.equals(mCountryCode))
         {
-            GetTracks(selectecCountryCode);
+            GetTracks(selectecCountryCode, false);
             ShowTracks();
         }
+    }
+
+    public void UpdateTopTenTracks(String artistId)
+    {
+        this.mArtistId = artistId;
+
+        GetTracks(GetCountryCodeFromPreference(), true);
+        ShowTracks();
     }
 
     public String GetCountryCodeFromPreference()
@@ -198,5 +232,17 @@ public class TopTenTracksFragment extends Fragment {
         {
             return tempCountryCode;
         }
+    }
+
+    public void  DisplayToastMessage(String toastMessageText)
+    {
+        //Stop any previous toasts
+        if(toastMessage !=null){ toastMessage.cancel(); }
+
+        // Display toast message
+        toastMessage = Toast.makeText(getActivity(),
+                toastMessageText,
+                Toast.LENGTH_LONG);
+        toastMessage.show();
     }
 }

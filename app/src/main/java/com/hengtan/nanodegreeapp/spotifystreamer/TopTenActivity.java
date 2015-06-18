@@ -65,7 +65,7 @@ public class TopTenActivity extends AppCompatActivity implements TopTenTracksFra
 
         switch (requestCode) {
             case MainActivity.RESULT_SETTINGS:
-                mTopTenFragment.UpdateTopTenListOnPreferenceUpdate();
+                mTopTenFragment.UpdateTopTenTracksOnPreferenceUpdate();
                 break;
 
         }

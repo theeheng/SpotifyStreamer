@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 
-public class MainActivity extends AppCompatActivity implements SearchArtistFragment.SearchArtistFragmentCallback, TopTenTracksFragment.TopTenTracksFragmentCallback {
+public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnItemClickListener {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String TOPTENFRAGMENT_TAG = "TTFTAG";
@@ -68,21 +68,9 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onArtistSelected(String artistId) {
+    public void onArtistClick(String artistId) {
         if (mTwoPane) {
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
-            Bundle args = new Bundle();
-            args.putString(TopTenTracksFragment.ARTIST_ID, artistId);
-
-            this.mTopTenFragment = new TopTenTracksFragment();
-            mTopTenFragment.setArguments(args);
-
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.artist_top_ten_container, mTopTenFragment, TOPTENFRAGMENT_TAG)
-                    .commit();
+            this.mTopTenFragment.UpdateTopTenTracks(artistId);
         } else {
             Intent intent = new Intent(this, TopTenActivity.class)
                     .putExtra(TopTenTracksFragment.ARTIST_ID, artistId);
@@ -90,8 +78,7 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
         }
     }
 
-    @Override
-    public void onTrackSelected(String trackId) {
+    public void onTrackClick(String trackId) {
         Toast.makeText(getApplicationContext(), "Track Id : " + trackId,
                 Toast.LENGTH_SHORT).show();
     }
@@ -103,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements SearchArtistFragm
         if (mTwoPane) {
             switch (requestCode) {
                 case MainActivity.RESULT_SETTINGS:
-                    mTopTenFragment.UpdateTopTenListOnPreferenceUpdate();
+                    mTopTenFragment.UpdateTopTenTracksOnPreferenceUpdate();
                     break;
 
             }

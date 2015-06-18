@@ -2,20 +2,19 @@ package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -29,10 +28,13 @@ import retrofit.client.Response;
 public class SearchArtistFragment extends Fragment {
 
     private SearchView artistSearchView;
-    private ListView artistListView;
+    private RecyclerView artistRecyclerView;
+    protected RecyclerView.LayoutManager mLayoutManager;
+    protected RecyclerViewAdapter mAdapter;
     private FrameLayout progressBarHolder;
     private ArrayList<ParcelableArtist> mArtistList;
     private String ARTIST_KEY = "artist_list";
+    private Toast toastMessage;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -60,8 +62,20 @@ public class SearchArtistFragment extends Fragment {
 
         progressBarHolder = (FrameLayout) rootView.findViewById(R.id.progressBarHolder);
 
-        artistListView = (ListView) rootView.findViewById(R.id.artistListView);
-        artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        artistRecyclerView = (RecyclerView) rootView.findViewById(R.id.artistRecyclerView);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        artistRecyclerView.setLayoutManager(mLayoutManager);
+
+        int scrollPosition = 0;
+
+        // If a layout manager has already been set, get current scroll position.
+        if (artistRecyclerView.getLayoutManager() != null) {
+            scrollPosition = ((LinearLayoutManager) artistRecyclerView.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+        }
+
+        artistRecyclerView.scrollToPosition(scrollPosition);
+       /* artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -72,7 +86,7 @@ public class SearchArtistFragment extends Fragment {
                     ((SearchArtistFragmentCallback) getActivity()).onArtistSelected(artist.id);
                 }
             }
-        });
+        }); */
         //Get a reference to artist search view
         artistSearchView = (SearchView) rootView.findViewById(R.id.searchArtistView);
         artistSearchView.setIconifiedByDefault(false);
@@ -148,13 +162,19 @@ public class SearchArtistFragment extends Fragment {
 
                         ProgressBarHelper.HideProgressBar(progressBarHolder);
 
-                        mArtistList.clear();
+                        if(artistsPager.artists.items.size() > 0) {
+                            mArtistList.clear();
 
-                        for (Artist artist : artistsPager.artists.items) {
-                            ParcelableArtist pa = new ParcelableArtist(artist);
-                            mArtistList.add(pa);
+                            for (Artist artist : artistsPager.artists.items) {
+                                ParcelableArtist pa = new ParcelableArtist(artist);
+                                mArtistList.add(pa);
+                            }
+                            ShowArtists();
                         }
-                        ShowArtists();
+                        else
+                        {
+                            DisplayToastMessage(getActivity().getResources().getString(R.string.no_artist_found));
+                        }
                     }
                 });
             }
@@ -176,14 +196,21 @@ public class SearchArtistFragment extends Fragment {
 
     public void ShowArtists()
     {
-        ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mArtistList);
+        /*ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mArtistList);
         adapter.InitAdapterType(ListViewAdapter.AdapterType.ARTIST_SEARCH);
-        artistListView.setAdapter(adapter);
+        artistListView.setAdapter(adapter);*/
+        mAdapter = new RecyclerViewAdapter(RecyclerViewAdapter.AdapterType.ARTIST_SEARCH, mArtistList);
+        mAdapter.SetOnItemClickListener((RecyclerViewAdapter.OnItemClickListener)this.getActivity());
+        // Set CustomAdapter as the adapter for RecyclerView.
+        artistRecyclerView.setAdapter(mAdapter);
+        // END_INCLUDE(initializeRecyclerView)
+
     }
 
     public void ShowErrorMessage(String errorMessage)
     {
-
+        String tmpMessage  = getActivity().getResources().getString(R.string.unable_to_connect_to_spotify)+ " : " + errorMessage;
+        DisplayToastMessage(tmpMessage);
     }
 
     @Override
@@ -197,4 +224,15 @@ public class SearchArtistFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
+    public void  DisplayToastMessage(String toastMessageText)
+    {
+        //Stop any previous toasts
+        if(toastMessage !=null){ toastMessage.cancel(); }
+
+        // Display toast message
+        toastMessage = Toast.makeText(getActivity(),
+                toastMessageText,
+                Toast.LENGTH_LONG);
+        toastMessage.show();
+    }
 }
