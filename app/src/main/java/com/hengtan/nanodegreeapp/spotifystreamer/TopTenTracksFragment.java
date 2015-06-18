@@ -1,56 +1,85 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ListView;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.engine.Resource;
+
+import com.bumptech.glide.Glide;
+import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
+import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class TopTenTracksFragment extends Fragment {
+public class TopTenTracksFragment extends Fragment implements ObservableScrollViewCallbacks {
 
-    static final String ARTIST_ID = "ARTISTID";
+    static final String ARTIST_PARCELABLE = "ARTISTPARCELABLE";
+    private static final float MAX_TEXT_SCALE_DELTA = 0.3f;
+
     private String TRACK_KEY = "track_list";
-    private String mArtistId;
+    private ParcelableArtist mArtist;
     private String mCountryCode;
-    private ListView mTopTenListView;
-    private FrameLayout progressBarHolder;
+    private int mScrollPosition = 0;
+
+    //@InjectView(R.id.progressBarHolder)
+    //protected FrameLayout progressBarHolder;
+
+    @InjectView(R.id.topTenRecyclerView)
+    protected ObservableRecyclerView mTopTenRecyclerView;
+
+    protected RecyclerView.LayoutManager mLayoutManager;
+    protected RecyclerViewAdapter mAdapter;
     private ArrayList<ParcelableTrack> mTrackList;
     private Toast toastMessage;
 
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface TopTenTracksFragmentCallback {
-        /**
-         * SearchArtistFragmentCallback for when an item has been selected.
-         */
-        void onTrackSelected(String trackId);
-    }
+    @InjectView(R.id.image)
+    protected ImageView mImageView;
+
+    @InjectView(R.id.overlay)
+    protected View mOverlayView;
+
+    @InjectView(R.id.list_background)
+    protected View mRecyclerViewBackground;
+
+    @InjectView(R.id.title)
+    protected TextView mTitleView;
+
+    private int mActionBarSize;
+    private int mFlexibleSpaceImageHeight;
+
+    private View headerView;
 
     public TopTenTracksFragment() {
 
@@ -62,51 +91,97 @@ public class TopTenTracksFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
+        ButterKnife.inject(this, view);
 
-        progressBarHolder = (FrameLayout) view.findViewById(R.id.progressBarHolder);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mTopTenRecyclerView.setLayoutManager(mLayoutManager);
 
-        mTopTenListView = (ListView) view.findViewById(R.id.topTenListView);
+        // If a layout manager has already been set, get current scroll position.
+        if (mTopTenRecyclerView.getLayoutManager() != null) {
+            mScrollPosition = ((LinearLayoutManager) mTopTenRecyclerView.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+        }
 
-        mTopTenListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mTopTenRecyclerView.scrollToPosition(mScrollPosition);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY)) {
+            mTrackList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
+            ShowTracks();
+        }
+        else {
+            mTrackList = new ArrayList<ParcelableTrack>();
+
+            Bundle arguments = getArguments();
+
+            if(arguments != null)
+            {
+                //ProgressBarHelper.ShowProgressBar(progressBarHolder);
+                mArtist = arguments.getParcelable(TopTenTracksFragment.ARTIST_PARCELABLE);
+                GetTracks(GetCountryCodeFromPreference(), false);
+            }
+
+        }
+
+
+        Glide.with(getActivity()).load(mArtist.getThumbnailImage()).into(mImageView);
+
+
+        mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(R.dimen.flexible_space_image_height);
+        mActionBarSize = getActionBarSize();
+
+        mTopTenRecyclerView.setScrollViewCallbacks(this);
+        mTopTenRecyclerView.setHasFixedSize(false);
+
+
+        mTopTenRecyclerView.setOnScrollListener(new TitleBarScrollListerner() {
+            @Override
+            public void onUpdateTitleWithArtistName() {
+                getActivity().setTitle(mArtist.name);
+                ((ActionBarActivity)getActivity()).getSupportActionBar().show();
+            }
 
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-                // if it cannot seek to that position.
-                Track track = (Track) adapterView.getItemAtPosition(position);
-                if (track != null) {
-                    ((TopTenTracksFragmentCallback) getActivity()).onTrackSelected(track.id);
-                }
+            public void onRestoreActivityTitle() {
+                ((ActionBarActivity)getActivity()).getSupportActionBar().hide();
             }
         });
 
 
-
-            // If there's instance state, mine it for useful information.
-            // The end-goal here is that the user never knows that turning their device sideways
-            // does crazy lifecycle related things.  It should feel like some stuff stretched out,
-            // or magically appeared to take advantage of room, but data or place in the app was never
-            // actually *lost*.
-            if (savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY)) {
-                // The listview probably hasn't even been populated yet.  Actually perform the
-                // swapout in onLoadFinished.
-                mTrackList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
-                ShowTracks();
+        headerView = LayoutInflater.from(getActivity()).inflate(R.layout.recycler_header, null);
+        headerView.post(new Runnable() {
+            @Override
+            public void run() {
+                if (headerView.getLayoutParams() != null)
+                    headerView.getLayoutParams().height = mFlexibleSpaceImageHeight;
             }
-            else {
-                mTrackList = new ArrayList<ParcelableTrack>();
+        });
 
-                Bundle arguments = getArguments();
+        mTitleView.setText(mArtist.name);
+        //getActivity().setTitle(null);
 
-                if(arguments != null)
-                {
-                    ProgressBarHelper.ShowProgressBar(progressBarHolder);
-                    mArtistId = arguments.getString(TopTenTracksFragment.ARTIST_ID);
-                    GetTracks(GetCountryCodeFromPreference(), false);
-                }
+        // mRecyclerViewBackground makes RecyclerView's background except header view.
+        //mRecyclerViewBackground = findViewById(R.id.list_background);
 
+        //since you cannot programmatically add a header view to a RecyclerView we added an empty view as the header
+        // in the adapter and then are shifting the views OnCreateView to compensate
+        final float scale = 1 + MAX_TEXT_SCALE_DELTA;
+        mRecyclerViewBackground.post(new Runnable() {
+            @Override
+            public void run() {
+                ViewHelper.setTranslationY(mRecyclerViewBackground, mFlexibleSpaceImageHeight);
             }
-
+        });
+        ViewHelper.setTranslationY(mOverlayView, mFlexibleSpaceImageHeight);
+        mTitleView.post(new Runnable() {
+            @Override
+            public void run() {
+                ViewHelper.setTranslationY(mTitleView, (int) (mFlexibleSpaceImageHeight - mTitleView.getHeight() * scale));
+                ViewHelper.setPivotX(mTitleView, 0);
+                ViewHelper.setPivotY(mTitleView, 0);
+                ViewHelper.setScaleX(mTitleView, scale);
+                ViewHelper.setScaleY(mTitleView, scale);
+            }
+        });
 
         return view;
     }
@@ -125,17 +200,16 @@ public class TopTenTracksFragment extends Fragment {
         mCountryCode = countryCode;
         fieldMap.put("country", mCountryCode);
 
-        spotify.getArtistTopTrack(mArtistId, fieldMap, new retrofit.Callback<Tracks>() {
+        spotify.getArtistTopTrack(mArtist.id, fieldMap, new retrofit.Callback<Tracks>() {
             @Override
             public void success(final Tracks result, Response response) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                        ProgressBarHelper.HideProgressBar(progressBarHolder);
+                        //ProgressBarHelper.HideProgressBar(progressBarHolder);
                         mTrackList.clear();
-                        if(result.tracks.size() > 0)
-                        {
+                        if (result.tracks.size() > 0) {
                             for (Track track : result.tracks) {
                                 ParcelableTrack pt = new ParcelableTrack(track);
                                 mTrackList.add(pt);
@@ -143,16 +217,11 @@ public class TopTenTracksFragment extends Fragment {
 
                             ShowTracks();
 
-                        }
-                        else
-                        {
-                            if(twoPane)
-                            {
+                        } else {
+                            if (twoPane) {
                                 ShowTracks();
                                 DisplayToastMessage(getActivity().getResources().getString(R.string.no_track_found));
-                            }
-                            else
-                            {
+                            } else {
                                 getActivity().finish();
                                 DisplayToastMessage(getActivity().getResources().getString(R.string.no_track_found));
 
@@ -169,7 +238,7 @@ public class TopTenTracksFragment extends Fragment {
                     @Override
                     public void run() {
 
-                        ProgressBarHelper.HideProgressBar(progressBarHolder);
+                        //ProgressBarHelper.HideProgressBar(progressBarHolder);
                         ShowErrorMessage(error.getMessage());
                     }
                 });
@@ -179,9 +248,18 @@ public class TopTenTracksFragment extends Fragment {
 
     private void ShowTracks()
     {
-        ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mTrackList);
-        adapter.InitAdapterType(ListViewAdapter.AdapterType.TOP_TEN_TRACKS);
-        mTopTenListView.setAdapter(adapter);
+        if(mAdapter == null) {
+            mAdapter = new RecyclerViewAdapter(getActivity(), headerView, RecyclerViewAdapter.AdapterType.TOP_TEN_TRACKS);
+            mAdapter.setTracks(mTrackList);
+            mAdapter.SetOnItemClickListener((RecyclerViewAdapter.OnItemClickListener) this.getActivity());
+            mTopTenRecyclerView.setAdapter(mAdapter);
+        }
+        else
+        {
+            mAdapter.setTracks(mTrackList);
+            mAdapter.notifyDataSetChanged();
+            mTopTenRecyclerView.scrollToPosition(0);
+        }
     }
 
     public void ShowErrorMessage(String errorMessage)
@@ -192,9 +270,6 @@ public class TopTenTracksFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // When tablets rotate, the currently selected list item needs to be saved.
-        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
-        // so check for that before storing.
         if (mTrackList != null && mTrackList.size() > 0) {
             outState.putParcelableArrayList(TRACK_KEY, mTrackList);
         }
@@ -212,10 +287,9 @@ public class TopTenTracksFragment extends Fragment {
         }
     }
 
-    public void UpdateTopTenTracks(String artistId)
+    public void UpdateTopTenTracks(ParcelableArtist artist)
     {
-        this.mArtistId = artistId;
-
+        this.mArtist = artist;
         GetTracks(GetCountryCodeFromPreference(), true);
         ShowTracks();
     }
@@ -244,5 +318,61 @@ public class TopTenTracksFragment extends Fragment {
                 toastMessageText,
                 Toast.LENGTH_LONG);
         toastMessage.show();
+    }
+
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+        // Translate overlay and image
+        float flexibleRange = mFlexibleSpaceImageHeight - mActionBarSize;
+        int minOverlayTransitionY = mActionBarSize - mOverlayView.getHeight();
+        ViewHelper.setTranslationY(mOverlayView, ScrollUtils.getFloat(-scrollY, minOverlayTransitionY, 0));
+        ViewHelper.setTranslationY(mImageView, ScrollUtils.getFloat(-scrollY / 2, minOverlayTransitionY, 0));
+
+        // Translate list background
+        ViewHelper.setTranslationY(mRecyclerViewBackground, Math.max(0, -scrollY + mFlexibleSpaceImageHeight));
+
+        // Change alpha of overlay
+        ViewHelper.setAlpha(mOverlayView, ScrollUtils.getFloat((float) scrollY / flexibleRange, 0, 1));
+
+        // Scale title text
+        float scale = 1 + ScrollUtils.getFloat((flexibleRange - scrollY) / flexibleRange, 0, MAX_TEXT_SCALE_DELTA);
+        setPivotXToTitle();
+        ViewHelper.setPivotY(mTitleView, 0);
+        ViewHelper.setScaleX(mTitleView, scale);
+        ViewHelper.setScaleY(mTitleView, scale);
+
+        // Translate title text
+        int maxTitleTranslationY = (int) (mFlexibleSpaceImageHeight - mTitleView.getHeight() * scale);
+        int titleTranslationY = maxTitleTranslationY - scrollY;
+        ViewHelper.setTranslationY(mTitleView, titleTranslationY);
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    private void setPivotXToTitle() {
+        Configuration config = getResources().getConfiguration();
+        if (Build.VERSION_CODES.JELLY_BEAN_MR1 <= Build.VERSION.SDK_INT
+                && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            ViewHelper.setPivotX(mTitleView, getActivity().findViewById(android.R.id.content).getWidth());
+        } else {
+            ViewHelper.setPivotX(mTitleView, 0);
+        }
+    }
+
+    protected int getActionBarSize() {
+        TypedValue typedValue = new TypedValue();
+        int[] textSizeAttr = new int[]{R.attr.actionBarSize};
+        int indexOfAttrTextSize = 0;
+        TypedArray a = getActivity().obtainStyledAttributes(typedValue.data, textSizeAttr);
+        int actionBarSize = a.getDimensionPixelSize(indexOfAttrTextSize, -1);
+        a.recycle();
+        return actionBarSize;
     }
 }

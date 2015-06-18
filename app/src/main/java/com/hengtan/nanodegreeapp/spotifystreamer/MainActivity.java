@@ -68,18 +68,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         return super.onOptionsItemSelected(item);
     }
 
-    public void onArtistClick(String artistId) {
+    public void onArtistClick(ParcelableArtist artist) {
         if (mTwoPane) {
-            this.mTopTenFragment.UpdateTopTenTracks(artistId);
+            this.mTopTenFragment.UpdateTopTenTracks(artist);
         } else {
             Intent intent = new Intent(this, TopTenActivity.class)
-                    .putExtra(TopTenTracksFragment.ARTIST_ID, artistId);
+                    .putExtra(TopTenTracksFragment.ARTIST_PARCELABLE, artist);
             startActivity(intent);
         }
     }
 
-    public void onTrackClick(String trackId) {
-        Toast.makeText(getApplicationContext(), "Track Id : " + trackId,
+    public void onTrackClick(ParcelableTrack track) {
+        Toast.makeText(getApplicationContext(), "Track Id : " + track.id,
                 Toast.LENGTH_SHORT).show();
     }
 

@@ -1,6 +1,9 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
+import android.app.Activity;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +17,10 @@ import java.util.List;
 /**
  * Provide views to RecyclerView with data from mDataSet.
  */
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private static final String TAG = "CustomAdapter";
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
 
     public enum AdapterType
     {
@@ -27,11 +32,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private List<ParcelableArtist> mArtists;
     private List<ParcelableTrack> mTracks;
     private AdapterType mType;
+    private LayoutInflater mInflater;
+    private View mHeaderView;
+
     OnItemClickListener mItemClickListener;
 
     public interface OnItemClickListener {
-        public void onArtistClick(String artistId);
-        public void onTrackClick(String trackId);
+        void onArtistClick(ParcelableArtist artist);
+        void onTrackClick(ParcelableTrack track);
     }
 
     public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
@@ -41,45 +49,61 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     /**
      * Initialize the dataset of the Adapter.
      *
-     * @param dataSet String[] containing the data to populate views to be used by RecyclerView.
+     * @param type AdapterType to indicate type of object passed in .
      */
-    public RecyclerViewAdapter(AdapterType type, List objects) {
+    public RecyclerViewAdapter(Context context, View headerView, AdapterType type) {
+        mInflater = LayoutInflater.from(context);
+        mHeaderView = headerView;
         mType = type;
-
-        switch (mType)
-        {
-            case ARTIST_SEARCH: mArtists = (List<ParcelableArtist>) objects; break;
-            case TOP_TEN_TRACKS: mTracks = (List<ParcelableTrack>) objects; break;
-            default: break;
-        }
     }
 
-    // BEGIN_INCLUDE(recyclerViewOnCreateViewHolder)
+    public void setArtists(List<ParcelableArtist> artists)
+    {
+        this.mArtists = artists;
+    }
+
+    public void setTracks(List<ParcelableTrack> tracks)
+    {
+        this.mTracks = tracks;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (position == 0) ? VIEW_TYPE_HEADER : VIEW_TYPE_ITEM;
+    }
+
     // Create new views (invoked by the layout manager)
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view.
-        View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.list_layout, viewGroup, false);
+        if (viewType == VIEW_TYPE_HEADER && mHeaderView != null) {
+            return new HeaderViewHolder(mHeaderView);
+        } else {
+            return new ItemViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_layout, viewGroup, false));
+        }
 
-        return new ViewHolder(v);
     }
-    // END_INCLUDE(recyclerViewOnCreateViewHolder)
 
-    // BEGIN_INCLUDE(recyclerViewOnBindViewHolder)
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        if (viewHolder instanceof ItemViewHolder) {
 
-        switch (mType)
-        {
-            case ARTIST_SEARCH:  DisplayArtistList(viewHolder, position); break;
-            case TOP_TEN_TRACKS: DisplayTopTenList(viewHolder, position); break;
-            default: break;
+            if(mHeaderView != null)
+            {
+                position = position - 1;
+            }
+
+            switch (mType)
+            {
+                case ARTIST_SEARCH:  DisplayArtistList((ItemViewHolder)viewHolder, position); break;
+                case TOP_TEN_TRACKS: DisplayTopTenList((ItemViewHolder)viewHolder, position); break;
+                default: break;
+            }
         }
     }
 
-    private void DisplayTopTenList(ViewHolder vh, int position) {
+    private void DisplayTopTenList(ItemViewHolder vh, int position) {
 
         ParcelableTrack track = mTracks.get(position);
 
@@ -107,7 +131,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
     }
 
-    private void DisplayArtistList(ViewHolder vh, int position) {
+    private void DisplayArtistList(ItemViewHolder vh, int position) {
         ParcelableArtist artist = mArtists.get(position);
 
         if(artist != null)
@@ -125,73 +149,78 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 Glide.with(vh.getImageView().getContext()).load(R.mipmap.ic_default_art).into(vh.getImageView());
             }
         }
-
-/*
-        if(artist != null)
-        {
-            InitViewControlFromView(v);
-
-            if(mImgView != null)
-            {
-                if(artist.getThumbnailImage() != null && (!artist.getThumbnailImage().equals(""))) {
-                    Glide.with(getContext()).load(artist.getThumbnailImage()).into(mImgView);
-                }
-                else
-                {
-                    Glide.with(getContext()).load(R.mipmap.ic_default_art).into(mImgView);
-                }
-            }
-
-            if(mTopTextView != null) {
-                mTopTextView.setText(artist.name);
-            }
-        }*/
     }
-    // END_INCLUDE(recyclerViewOnBindViewHolder)
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
+
+        int itemCountSize = 0;
+
         if(mArtists != null)
         {
-            return mArtists.size();
+            itemCountSize = mArtists.size();
         }
         else if (mTracks != null)
         {
-            return mTracks.size();
+            itemCountSize = mTracks.size();
         }
-        else
-        {
-            return 0;
+
+        if (mHeaderView == null) {
+            return itemCountSize;
+        } else {
+            return itemCountSize + 1;
         }
     }
 
-    // BEGIN_INCLUDE(recyclerViewSampleViewHolder)
+    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        public HeaderViewHolder(View view) {
+            super(view);
+        }
+    }
+
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final ImageView mImgView;
         private final TextView mTopTextView;
         private final TextView mBottomTextView;
 
-        public ViewHolder(View v) {
+        public ItemViewHolder(View v) {
             super(v);
-            // Define click listener for the ViewHolder's View.
 
             mImgView = (ImageView) v.findViewById(R.id.listImageView);
             mTopTextView = (TextView) v.findViewById(R.id.listTextViewTop);
             mBottomTextView = (TextView) v.findViewById(R.id.listTextViewBottom);
+
+            // Define click listener for the ViewHolder's View.
             v.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             if (mItemClickListener != null) {
+
+
+                int clickPosition = getPosition();
+
+                Log.d("Log position for list : "+ clickPosition,Integer.toString(clickPosition));
+
+
+                if(mHeaderView != null)
+                {
+                    clickPosition = clickPosition - 1;
+                }
+
                 switch (mType)
                 {
-                    case ARTIST_SEARCH: mItemClickListener.onArtistClick(mArtists.get(getPosition()).id); break;
-                    case TOP_TEN_TRACKS: mItemClickListener.onTrackClick(mTracks.get(getPosition()).id);; break;
+                    case ARTIST_SEARCH:
+                        Log.d("selected artist : "+ mArtists.get(clickPosition).id,mArtists.get(clickPosition).id);
+                        mItemClickListener.onArtistClick(mArtists.get(clickPosition)); break;
+                    case TOP_TEN_TRACKS:
+                        Log.d("selected track : "+ mTracks.get(clickPosition).id,mTracks.get(clickPosition).id);
+                        mItemClickListener.onTrackClick(mTracks.get(clickPosition)); break;
                     default: break;
                 }
             }
@@ -209,7 +238,5 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
     }
-    // END_INCLUDE(recyclerViewSampleViewHolder)
-
 }
 

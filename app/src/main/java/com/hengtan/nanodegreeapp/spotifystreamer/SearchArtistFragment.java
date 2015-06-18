@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
@@ -27,31 +29,26 @@ import retrofit.client.Response;
 
 public class SearchArtistFragment extends Fragment {
 
-    private SearchView artistSearchView;
-    private RecyclerView artistRecyclerView;
+    private String ARTIST_KEY = "artist_list";
+    private int mScrollPosition = 0;
+
+    @InjectView(R.id.searchArtistView)
+    protected SearchView artistSearchView;
+
+    @InjectView(R.id.progressBarHolder)
+    protected FrameLayout progressBarHolder;
+
+    @InjectView(R.id.artistRecyclerView)
+    protected RecyclerView artistRecyclerView;
+
     protected RecyclerView.LayoutManager mLayoutManager;
     protected RecyclerViewAdapter mAdapter;
-    private FrameLayout progressBarHolder;
     private ArrayList<ParcelableArtist> mArtistList;
-    private String ARTIST_KEY = "artist_list";
     private Toast toastMessage;
-
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface SearchArtistFragmentCallback {
-        /**
-         * SearchArtistFragmentCallback for when an item has been selected.
-         */
-        void onArtistSelected(String artistId);
-    }
 
     public SearchArtistFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,49 +56,30 @@ public class SearchArtistFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_search_artist, container, false);
+        ButterKnife.inject(this, rootView);
 
-        progressBarHolder = (FrameLayout) rootView.findViewById(R.id.progressBarHolder);
-
-        artistRecyclerView = (RecyclerView) rootView.findViewById(R.id.artistRecyclerView);
         mLayoutManager = new LinearLayoutManager(getActivity());
         artistRecyclerView.setLayoutManager(mLayoutManager);
 
-        int scrollPosition = 0;
-
         // If a layout manager has already been set, get current scroll position.
         if (artistRecyclerView.getLayoutManager() != null) {
-            scrollPosition = ((LinearLayoutManager) artistRecyclerView.getLayoutManager())
+            mScrollPosition = ((LinearLayoutManager) artistRecyclerView.getLayoutManager())
                     .findFirstCompletelyVisibleItemPosition();
         }
 
-        artistRecyclerView.scrollToPosition(scrollPosition);
-       /* artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        artistRecyclerView.scrollToPosition(mScrollPosition);
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-                // if it cannot seek to that position.
-                ParcelableArtist artist = (ParcelableArtist) adapterView.getItemAtPosition(position);
-                if (artist != null) {
-                    ((SearchArtistFragmentCallback) getActivity()).onArtistSelected(artist.id);
-                }
-            }
-        }); */
-        //Get a reference to artist search view
-        artistSearchView = (SearchView) rootView.findViewById(R.id.searchArtistView);
         artistSearchView.setIconifiedByDefault(false);
-        artistSearchView.setSubmitButtonEnabled(true);
+        //artistSearchView.setSubmitButtonEnabled(true);
 
         int magId = getResources().getIdentifier("android:id/search_mag_icon", null, null);
         ImageView magImage = (ImageView) artistSearchView.findViewById(magId);
         magImage.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
 
-
         artistSearchView.setOnSearchClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-
                 Log.d("Search click ", "Search click");
                 //SearchArtistFragment.this.onSearchArtistBtnClick((View) view);
             }
@@ -123,14 +101,7 @@ public class SearchArtistFragment extends Fragment {
             }
         });
 
-        // If there's instance state, mine it for useful information.
-        // The end-goal here is that the user never knows that turning their device sideways
-        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
-        // or magically appeared to take advantage of room, but data or place in the app was never
-        // actually *lost*.
         if (savedInstanceState != null && savedInstanceState.containsKey(ARTIST_KEY)) {
-            // The listview probably hasn't even been populated yet.  Actually perform the
-            // swapout in onLoadFinished.
             mArtistList = savedInstanceState.getParcelableArrayList(ARTIST_KEY);
             ShowArtists();
         }
@@ -147,8 +118,8 @@ public class SearchArtistFragment extends Fragment {
 
         SpotifyApi api = new SpotifyApi();
 
-// Most (but not all) of the Spotify Web API endpoints require authorisation.
-// If you know you'll only use the ones that don't require authorisation you can skip this step
+        // Most (but not all) of the Spotify Web API endpoints require authorisation.
+        // If you know you'll only use the ones that don't require authorisation you can skip this step
        // api.setAccessToken("myAccessToken");
 
         SpotifyService spotify = api.getService();
@@ -162,7 +133,7 @@ public class SearchArtistFragment extends Fragment {
 
                         ProgressBarHelper.HideProgressBar(progressBarHolder);
 
-                        if(artistsPager.artists.items.size() > 0) {
+                        if (artistsPager.artists.items.size() > 0) {
                             mArtistList.clear();
 
                             for (Artist artist : artistsPager.artists.items) {
@@ -170,9 +141,7 @@ public class SearchArtistFragment extends Fragment {
                                 mArtistList.add(pa);
                             }
                             ShowArtists();
-                        }
-                        else
-                        {
+                        } else {
                             DisplayToastMessage(getActivity().getResources().getString(R.string.no_artist_found));
                         }
                     }
@@ -196,15 +165,18 @@ public class SearchArtistFragment extends Fragment {
 
     public void ShowArtists()
     {
-        /*ListViewAdapter adapter = new ListViewAdapter(getActivity(), R.layout.list_layout, mArtistList);
-        adapter.InitAdapterType(ListViewAdapter.AdapterType.ARTIST_SEARCH);
-        artistListView.setAdapter(adapter);*/
-        mAdapter = new RecyclerViewAdapter(RecyclerViewAdapter.AdapterType.ARTIST_SEARCH, mArtistList);
-        mAdapter.SetOnItemClickListener((RecyclerViewAdapter.OnItemClickListener)this.getActivity());
-        // Set CustomAdapter as the adapter for RecyclerView.
-        artistRecyclerView.setAdapter(mAdapter);
-        // END_INCLUDE(initializeRecyclerView)
-
+        if(mAdapter == null) {
+            mAdapter = new RecyclerViewAdapter(getActivity(), null, RecyclerViewAdapter.AdapterType.ARTIST_SEARCH);
+            mAdapter.setArtists(mArtistList);
+            mAdapter.SetOnItemClickListener((RecyclerViewAdapter.OnItemClickListener) this.getActivity());
+            artistRecyclerView.setAdapter(mAdapter);
+        }
+        else
+        {
+            mAdapter.setArtists(mArtistList);
+            mAdapter.notifyDataSetChanged();
+            artistRecyclerView.scrollToPosition(0);
+        }
     }
 
     public void ShowErrorMessage(String errorMessage)
@@ -215,9 +187,7 @@ public class SearchArtistFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // When tablets rotate, the currently selected list item needs to be saved.
-        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
-        // so check for that before storing.
+
         if (mArtistList != null && mArtistList.size() > 0) {
             outState.putParcelableArrayList(ARTIST_KEY, mArtistList);
         }

@@ -5,4 +5,8 @@
     <dimen name="list_image_width">100dp</dimen>
     <dimen name="list_image_height">100dp</dimen>
     <dimen name="list_image_padding">10dp</dimen>
+    <dimen name="flexible_space_height">72dp</dimen>
+    <dimen name="flexible_space_image_height">240dp</dimen>
+    <dimen name="flexible_space_show_fab_offset">120dp</dimen>
+    <dimen name="margin_standard">16dp</dimen>
 </resources>

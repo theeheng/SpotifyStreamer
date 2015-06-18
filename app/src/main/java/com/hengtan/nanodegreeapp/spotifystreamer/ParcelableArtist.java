@@ -36,6 +36,7 @@ public class ParcelableArtist extends Artist implements Parcelable {
     }
 
     ParcelableArtist(Parcel in) {
+        mParcelableString = new ArrayList<String>();
         in.readStringList(this.mParcelableString);
         this.id = mParcelableString.get(ParcelableArtistIndex.ARTIST_ID.ordinal());
         this.name = mParcelableString.get(ParcelableArtistIndex.ARTIST_NAME.ordinal());

@@ -2,13 +2,16 @@ package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 
-public class TopTenActivity extends AppCompatActivity implements TopTenTracksFragment.TopTenTracksFragmentCallback {
+public class TopTenActivity extends ActionBarActivity implements RecyclerViewAdapter.OnItemClickListener {
 
     private TopTenTracksFragment mTopTenFragment;
 
@@ -17,10 +20,13 @@ public class TopTenActivity extends AppCompatActivity implements TopTenTracksFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_ten);
 
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getSupportActionBar().hide();
+
         if(savedInstanceState == null)
         {
             Bundle arguments = new Bundle();
-            arguments.putString(TopTenTracksFragment.ARTIST_ID, getIntent().getStringExtra(TopTenTracksFragment.ARTIST_ID));
+            arguments.putParcelable(TopTenTracksFragment.ARTIST_PARCELABLE, getIntent().getParcelableExtra(TopTenTracksFragment.ARTIST_PARCELABLE));
 
             this.mTopTenFragment = new TopTenTracksFragment();
             this.mTopTenFragment.setArguments(arguments);
@@ -53,9 +59,11 @@ public class TopTenActivity extends AppCompatActivity implements TopTenTracksFra
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onTrackSelected(String trackId) {
-        Toast.makeText(getApplicationContext(), "Track Id : " + trackId,
+    public void onArtistClick(ParcelableArtist artist) {
+    }
+
+    public void onTrackClick(ParcelableTrack track) {
+        Toast.makeText(getApplicationContext(), "Track Id : " + track.id,
                 Toast.LENGTH_SHORT).show();
     }
 
