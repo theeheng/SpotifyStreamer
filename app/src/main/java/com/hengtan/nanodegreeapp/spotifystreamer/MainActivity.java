@@ -1,10 +1,13 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -30,10 +33,14 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             if (savedInstanceState == null) {
 
                 mTopTenFragment = new TopTenTracksFragment();
-
+                mTopTenFragment.setTwoPane(mTwoPane);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.artist_top_ten_container, mTopTenFragment , TOPTENFRAGMENT_TAG)
                         .commit();
+            }else
+            {
+                mTopTenFragment = (TopTenTracksFragment) getFragmentManager().findFragmentByTag(TOPTENFRAGMENT_TAG);
+                mTopTenFragment.setTwoPane(mTwoPane);
             }
         } else {
             mTwoPane = false;
@@ -68,13 +75,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         return super.onOptionsItemSelected(item);
     }
 
-    public void onArtistClick(ParcelableArtist artist) {
+    public void onArtistClick(ParcelableArtist artist, ImageView imgView) {
         if (mTwoPane) {
             this.mTopTenFragment.UpdateTopTenTracks(artist);
         } else {
             Intent intent = new Intent(this, TopTenActivity.class)
                     .putExtra(TopTenTracksFragment.ARTIST_PARCELABLE, artist);
-            startActivity(intent);
+
+            if(Build.VERSION.SDK_INT >= 21) {
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, imgView, "photo_thumbnail");
+                startActivity(intent, options.toBundle());
+            }
+            else
+            {
+                startActivity(intent);
+            }
+
         }
     }
 

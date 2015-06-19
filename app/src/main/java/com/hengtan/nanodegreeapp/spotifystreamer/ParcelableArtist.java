@@ -69,7 +69,7 @@ public class ParcelableArtist extends Artist implements Parcelable {
             }
             else if(this.images.size() >= 3)
             {
-                return this.images.get(2).url;
+                return this.images.get(1).url;
             }
             else
             {

@@ -38,7 +38,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     OnItemClickListener mItemClickListener;
 
     public interface OnItemClickListener {
-        void onArtistClick(ParcelableArtist artist);
+        void onArtistClick(ParcelableArtist artist, ImageView imgView);
         void onTrackClick(ParcelableTrack track);
     }
 
@@ -190,7 +190,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public ItemViewHolder(View v) {
             super(v);
 
-            mImgView = (ImageView) v.findViewById(R.id.listImageView);
+            mImgView = (ImageView) v.findViewById(R.id.image);
             mTopTextView = (TextView) v.findViewById(R.id.listTextViewTop);
             mBottomTextView = (TextView) v.findViewById(R.id.listTextViewBottom);
 
@@ -217,7 +217,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 {
                     case ARTIST_SEARCH:
                         Log.d("selected artist : "+ mArtists.get(clickPosition).id,mArtists.get(clickPosition).id);
-                        mItemClickListener.onArtistClick(mArtists.get(clickPosition)); break;
+                        mItemClickListener.onArtistClick(mArtists.get(clickPosition), mImgView); break;
                     case TOP_TEN_TRACKS:
                         Log.d("selected track : "+ mTracks.get(clickPosition).id,mTracks.get(clickPosition).id);
                         mItemClickListener.onTrackClick(mTracks.get(clickPosition)); break;

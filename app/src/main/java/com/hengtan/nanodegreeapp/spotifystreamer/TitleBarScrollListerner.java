@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
  */
 public abstract class TitleBarScrollListerner extends RecyclerView.OnScrollListener {
 
-    private static final int UPDATETITLE_THRESHOLD = 200;
+    private static final int UPDATETITLE_THRESHOLD = 330;
     private int scrolledDistance = 0;
     private boolean showActivityTitle = true;
 

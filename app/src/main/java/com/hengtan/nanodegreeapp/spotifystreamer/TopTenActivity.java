@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -19,8 +21,9 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_ten);
-
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        Window w = getWindow();
+        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         getSupportActionBar().hide();
 
         if(savedInstanceState == null)
@@ -29,6 +32,7 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
             arguments.putParcelable(TopTenTracksFragment.ARTIST_PARCELABLE, getIntent().getParcelableExtra(TopTenTracksFragment.ARTIST_PARCELABLE));
 
             this.mTopTenFragment = new TopTenTracksFragment();
+            this.mTopTenFragment.setTwoPane(false);
             this.mTopTenFragment.setArguments(arguments);
 
             getFragmentManager().beginTransaction().add(R.id.artist_top_ten_container, mTopTenFragment).commit();
@@ -59,7 +63,7 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
         return super.onOptionsItemSelected(item);
     }
 
-    public void onArtistClick(ParcelableArtist artist) {
+    public void onArtistClick(ParcelableArtist artist, ImageView imgView) {
     }
 
     public void onTrackClick(ParcelableTrack track) {

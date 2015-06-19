@@ -16,7 +16,11 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +56,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
     private ParcelableArtist mArtist;
     private String mCountryCode;
     private int mScrollPosition = 0;
+    private boolean mTwoPane = false;
 
     //@InjectView(R.id.progressBarHolder)
     //protected FrameLayout progressBarHolder;
@@ -82,9 +87,11 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
     private View headerView;
 
     public TopTenTracksFragment() {
-
     }
 
+    public void setTwoPane(boolean twoPane) {
+        this.mTwoPane = twoPane;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -117,14 +124,11 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
             {
                 //ProgressBarHelper.ShowProgressBar(progressBarHolder);
                 mArtist = arguments.getParcelable(TopTenTracksFragment.ARTIST_PARCELABLE);
-                GetTracks(GetCountryCodeFromPreference(), false);
+                GetTracks(GetCountryCodeFromPreference());
+
             }
 
         }
-
-
-        Glide.with(getActivity()).load(mArtist.getThumbnailImage()).into(mImageView);
-
 
         mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(R.dimen.flexible_space_image_height);
         mActionBarSize = getActionBarSize();
@@ -133,21 +137,41 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
         mTopTenRecyclerView.setHasFixedSize(false);
 
 
-        mTopTenRecyclerView.setOnScrollListener(new TitleBarScrollListerner() {
-            @Override
-            public void onUpdateTitleWithArtistName() {
-                getActivity().setTitle(mArtist.name);
-                ((ActionBarActivity)getActivity()).getSupportActionBar().show();
-            }
+        if(!mTwoPane) {
+            mTopTenRecyclerView.setOnScrollListener(new TitleBarScrollListerner() {
+                @Override
+                public void onUpdateTitleWithArtistName() {
 
-            @Override
-            public void onRestoreActivityTitle() {
-                ((ActionBarActivity)getActivity()).getSupportActionBar().hide();
-            }
-        });
+                        final WindowManager.LayoutParams attrs = getActivity().getWindow()
+                                .getAttributes();
+                        attrs.flags &= (~WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+                        attrs.flags &= (~WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                        getActivity().getWindow().setAttributes(attrs);
+                        getActivity().getWindow().clearFlags(
+                                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+                        ((ActionBarActivity) getActivity()).getSupportActionBar().show();
 
+                }
+
+                @Override
+                public void onRestoreActivityTitle() {
+
+
+                        Window w = getActivity().getWindow();
+                        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+                        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+                        ((ActionBarActivity) getActivity()).getSupportActionBar().hide();
+
+                }
+            });
+        }
 
         headerView = LayoutInflater.from(getActivity()).inflate(R.layout.recycler_header, null);
+
+        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, mFlexibleSpaceImageHeight);
+        headerView.setLayoutParams(params1);
+
         headerView.post(new Runnable() {
             @Override
             public void run() {
@@ -156,7 +180,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
             }
         });
 
-        mTitleView.setText(mArtist.name);
+
         //getActivity().setTitle(null);
 
         // mRecyclerViewBackground makes RecyclerView's background except header view.
@@ -171,7 +195,14 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
                 ViewHelper.setTranslationY(mRecyclerViewBackground, mFlexibleSpaceImageHeight);
             }
         });
-        ViewHelper.setTranslationY(mOverlayView, mFlexibleSpaceImageHeight);
+
+        if(!mTwoPane) {
+            ViewHelper.setTranslationY(mOverlayView, mFlexibleSpaceImageHeight);
+        }
+        else
+        {
+            mOverlayView.setVisibility(View.GONE);
+        }
         mTitleView.post(new Runnable() {
             @Override
             public void run() {
@@ -186,8 +217,14 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
         return view;
     }
 
-    private void GetTracks(String countryCode, final boolean twoPane)
+    private void GetTracks(String countryCode)
     {
+        Glide.with(getActivity()).load(mArtist.getThumbnailImage()).into(mImageView);
+        mTitleView.setText(mArtist.name);
+
+        if(!mTwoPane)
+            getActivity().setTitle(mArtist.name);
+
         SpotifyApi api = new SpotifyApi();
 
         // Most (but not all) of the Spotify Web API endpoints require authorisation.
@@ -218,7 +255,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
                             ShowTracks();
 
                         } else {
-                            if (twoPane) {
+                            if (mTwoPane) {
                                 ShowTracks();
                                 DisplayToastMessage(getActivity().getResources().getString(R.string.no_track_found));
                             } else {
@@ -259,6 +296,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
             mAdapter.setTracks(mTrackList);
             mAdapter.notifyDataSetChanged();
             mTopTenRecyclerView.scrollToPosition(0);
+            onScrollChanged(0, false, true);
         }
     }
 
@@ -282,7 +320,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
 
         if(!selectecCountryCode.equals(mCountryCode))
         {
-            GetTracks(selectecCountryCode, false);
+            GetTracks(selectecCountryCode);
             ShowTracks();
         }
     }
@@ -290,7 +328,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
     public void UpdateTopTenTracks(ParcelableArtist artist)
     {
         this.mArtist = artist;
-        GetTracks(GetCountryCodeFromPreference(), true);
+        GetTracks(GetCountryCodeFromPreference());
         ShowTracks();
     }
 
@@ -325,14 +363,17 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
         // Translate overlay and image
         float flexibleRange = mFlexibleSpaceImageHeight - mActionBarSize;
         int minOverlayTransitionY = mActionBarSize - mOverlayView.getHeight();
-        ViewHelper.setTranslationY(mOverlayView, ScrollUtils.getFloat(-scrollY, minOverlayTransitionY, 0));
+
         ViewHelper.setTranslationY(mImageView, ScrollUtils.getFloat(-scrollY / 2, minOverlayTransitionY, 0));
 
         // Translate list background
         ViewHelper.setTranslationY(mRecyclerViewBackground, Math.max(0, -scrollY + mFlexibleSpaceImageHeight));
 
         // Change alpha of overlay
-        ViewHelper.setAlpha(mOverlayView, ScrollUtils.getFloat((float) scrollY / flexibleRange, 0, 1));
+        if(!mTwoPane) {
+            ViewHelper.setTranslationY(mOverlayView, ScrollUtils.getFloat(-scrollY, minOverlayTransitionY, 0));
+            ViewHelper.setAlpha(mOverlayView, ScrollUtils.getFloat((float) scrollY / flexibleRange, 0, 1));
+        }
 
         // Scale title text
         float scale = 1 + ScrollUtils.getFloat((flexibleRange - scrollY) / flexibleRange, 0, MAX_TEXT_SCALE_DELTA);
