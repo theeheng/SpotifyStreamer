@@ -1,6 +1,8 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +14,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
+
 
 public class TopTenActivity extends ActionBarActivity implements RecyclerViewAdapter.OnItemClickListener {
 
@@ -21,10 +25,17 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_ten);
-        Window w = getWindow();
-        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        getSupportActionBar().hide();
+
+        if(Build.VERSION.SDK_INT >= 19) {
+            Window w = getWindow();
+            w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+        else
+        {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+            getSupportActionBar().hide();
 
         if(savedInstanceState == null)
         {
@@ -36,6 +47,49 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
             this.mTopTenFragment.setArguments(arguments);
 
             getFragmentManager().beginTransaction().add(R.id.artist_top_ten_container, mTopTenFragment).commit();
+        }
+    }
+
+    int ResolveTransparentStatusBarFlag()
+    {
+        String[] libs = getPackageManager().getSystemSharedLibraryNames();
+        String reflect = null;
+
+        if (libs == null)
+            return 0;
+
+        for (String lib : libs)
+        {
+            if (lib.equals("touchwiz"))
+                reflect = "SYSTEM_UI_FLAG_TRANSPARENT_BACKGROUND";
+            else if (lib.startsWith("com.sonyericsson.navigationbar"))
+                reflect = "SYSTEM_UI_FLAG_TRANSPARENT";
+        }
+
+        if (reflect == null)
+            return 0;
+
+        try
+        {
+            Field field = View.class.getField(reflect);
+            if (field.getType() == Integer.TYPE)
+                return field.getInt(null);
+        }
+        catch (Exception e)
+        {
+        }
+
+        return 0;
+    }
+
+    void ApplyTransparentStatusBar()
+    {
+        Window window = getWindow();
+        if (window != null)
+        {
+            View decor = window.getDecorView();
+            if (decor != null)
+                decor.setSystemUiVisibility(ResolveTransparentStatusBarFlag());
         }
     }
 

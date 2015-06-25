@@ -33,6 +33,7 @@ import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
 import com.github.ksoichiro.android.observablescrollview.Scrollable;
 import com.nineoldandroids.view.ViewHelper;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -149,7 +150,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
                         getActivity().getWindow().setAttributes(attrs);
                         getActivity().getWindow().clearFlags(
                                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-                        ((ActionBarActivity) getActivity()).getSupportActionBar().show();
+                   //    ((ActionBarActivity) getActivity()).getSupportActionBar().show();
 
                 }
 
