@@ -41,8 +41,8 @@ public class PlayerActivity extends ActionBarActivity {
                     arguments.putInt(PlayerFragment.TRACKINDEX, 0);
 
             Bundle extras =getIntent().getExtras();
-            Bundle extra2 = extras.getBundle("test123");
-ArrayList<ParcelableTrack> test = extra2.getParcelable(PlayerFragment.TOPTENTRACKS_PARCELABLE);
+           // Bundle extra2 = extras.getBundle("test123");
+ArrayList<ParcelableTrack> test = extras.getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE);
 
             arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, extras.getBundle("test123").getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE));
 

@@ -131,7 +131,7 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
         Bundle test = new Bundle();
        // test.putInt(PlayerFragment.TRACKINDEX, trackIndex);
        test.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, tracks);
-        intent.putExtra("test123",test);
+        intent.putExtra(PlayerFragment.TOPTENTRACKS_PARCELABLE, tracks);
 
         startActivity(intent);
     }
