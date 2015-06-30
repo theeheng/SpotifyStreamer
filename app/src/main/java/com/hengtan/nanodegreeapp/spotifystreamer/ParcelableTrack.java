@@ -41,6 +41,7 @@ public class ParcelableTrack extends Track implements Parcelable {
     }
 
     ParcelableTrack(Parcel in) {
+        mParcelableString = new ArrayList<String>();
         in.readStringList(this.mParcelableString);
         this.id = mParcelableString.get(ParcelableTrackIndex.TRACK_ID.ordinal());
         this.name = mParcelableString.get(ParcelableTrackIndex.TRACK_NAME.ordinal());

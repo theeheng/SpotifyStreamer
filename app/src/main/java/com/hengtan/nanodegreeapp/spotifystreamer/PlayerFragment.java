@@ -1,6 +1,7 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 
+import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +41,7 @@ import static android.view.View.VISIBLE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PlayerFragment extends Fragment {
+public class PlayerFragment extends DialogFragment {
 
     private boolean mTwoPane = false;
     static final String TRACKINDEX = "TRACKINDEX";
@@ -211,7 +212,7 @@ public class PlayerFragment extends Fragment {
             if(arguments != null)
             {
                 //ProgressBarHelper.ShowProgressBar(progressBarHolder);
-                mTrackList = arguments.getParcelable(PlayerFragment.TOPTENTRACKS_PARCELABLE);
+                mTrackList = arguments.getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE);
                 mTrackIndex = arguments.getInt(PlayerFragment.TRACKINDEX);
 
                 Glide.with(this).load(mTrackList.get(mTrackIndex).getPlaybackImage()).into(mBackgroundImage);

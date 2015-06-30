@@ -18,11 +18,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String TOPTENFRAGMENT_TAG = "TTFTAG";
+    private static final String PLAYERFRAGMENT_TAG = "PFTAG";
     public static final int RESULT_SETTINGS = 1;
 
     private boolean mTwoPane;
 
     private TopTenTracksFragment mTopTenFragment;
+    private PlayerFragment mPlayerFragment;
     private SearchArtistFragment mSearchArtistFragment;
 
     @Override
@@ -98,8 +100,20 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     }
 
     public void onTrackClick(ArrayList<ParcelableTrack> tracks, int trackIndex) {
-        Toast.makeText(getApplicationContext(), "Track Id : " + tracks.get(trackIndex).id,
-                Toast.LENGTH_SHORT).show();
+
+        if(mTwoPane)
+        {
+            Bundle arguments = new Bundle();
+
+            arguments.putInt(PlayerFragment.TRACKINDEX, trackIndex);
+            arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, tracks);
+
+            this.mPlayerFragment = new PlayerFragment();
+            this.mPlayerFragment.setTwoPane(true);
+            this.mPlayerFragment.setArguments(arguments);
+
+            mPlayerFragment.show(getFragmentManager(), PLAYERFRAGMENT_TAG);
+        }
     }
 
     @Override

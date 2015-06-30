@@ -37,14 +37,8 @@ public class PlayerActivity extends ActionBarActivity {
         {
             Bundle arguments = new Bundle();
 
-//            int test = getIntent().getExtras().getInt(PlayerFragment.TRACKINDEX);
-                    arguments.putInt(PlayerFragment.TRACKINDEX, 0);
-
-            Bundle extras =getIntent().getExtras();
-           // Bundle extra2 = extras.getBundle("test123");
-ArrayList<ParcelableTrack> test = extras.getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE);
-
-            arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, extras.getBundle("test123").getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE));
+            arguments.putInt(PlayerFragment.TRACKINDEX, getIntent().getExtras().getInt(PlayerFragment.TRACKINDEX));
+            arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, getIntent().getExtras().getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE));
 
             this.mPlayerFragment = new PlayerFragment();
             this.mPlayerFragment.setTwoPane(false);
