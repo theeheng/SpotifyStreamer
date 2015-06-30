@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,8 +30,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     //declaring our List of artists
-    private List<ParcelableArtist> mArtists;
-    private List<ParcelableTrack> mTracks;
+    private ArrayList<ParcelableArtist> mArtists;
+    private ArrayList<ParcelableTrack> mTracks;
     private AdapterType mType;
     private LayoutInflater mInflater;
     private View mHeaderView;
@@ -39,7 +40,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public interface OnItemClickListener {
         void onArtistClick(ParcelableArtist artist, ImageView imgView);
-        void onTrackClick(ParcelableTrack track);
+        void onTrackClick(ArrayList<ParcelableTrack> tracks, int trackIndex);
     }
 
     public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
@@ -57,12 +58,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mType = type;
     }
 
-    public void setArtists(List<ParcelableArtist> artists)
+    public void setArtists(ArrayList<ParcelableArtist> artists)
     {
         this.mArtists = artists;
     }
 
-    public void setTracks(List<ParcelableTrack> tracks)
+    public void setTracks(ArrayList<ParcelableTrack> tracks)
     {
         this.mTracks = tracks;
     }
@@ -220,7 +221,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         mItemClickListener.onArtistClick(mArtists.get(clickPosition), mImgView); break;
                     case TOP_TEN_TRACKS:
                         Log.d("selected track : "+ mTracks.get(clickPosition).id,mTracks.get(clickPosition).id);
-                        mItemClickListener.onTrackClick(mTracks.get(clickPosition)); break;
+                        mItemClickListener.onTrackClick(mTracks, clickPosition); break;
                     default: break;
                 }
             }

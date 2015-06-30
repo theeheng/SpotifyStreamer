@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -15,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class TopTenActivity extends ActionBarActivity implements RecyclerViewAdapter.OnItemClickListener {
@@ -120,9 +123,17 @@ public class TopTenActivity extends ActionBarActivity implements RecyclerViewAda
     public void onArtistClick(ParcelableArtist artist, ImageView imgView) {
     }
 
-    public void onTrackClick(ParcelableTrack track) {
-        Toast.makeText(getApplicationContext(), "Track Id : " + track.id,
-                Toast.LENGTH_SHORT).show();
+    public void onTrackClick(ArrayList<ParcelableTrack> tracks, int trackIndex) {
+
+        Intent intent = new Intent(this, PlayerActivity.class);
+       // intent.putExtra(PlayerFragment.TRACKINDEX, trackIndex);
+
+        Bundle test = new Bundle();
+       // test.putInt(PlayerFragment.TRACKINDEX, trackIndex);
+       test.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, tracks);
+        intent.putExtra("test123",test);
+
+        startActivity(intent);
     }
 
     @Override

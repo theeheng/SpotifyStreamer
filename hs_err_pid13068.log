@@ -1,0 +1,78 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x000000006e58e357, pid=13068, tid=13388
+#
+# JRE version: Java(TM) SE Runtime Environment (7.0_71-b14) (build 1.7.0_71-b14)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (24.71-b01 mixed mode windows-amd64 compressed oops)
+# Problematic frame:
+# V  [jvm.dll+0x1ce357]
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000000091dc800):  JavaThread "Forward streams with process: command 'C:\Program Files\Java\jdk1.7.0_71\bin\java.exe'" [_thread_in_vm, id=13388, stack(0x00000000120e0000,0x00000000121e0000)]
+
+siginfo: ExceptionCode=0xc0000005, writing address 0x00000000121da7a0
+
+Registers:
+RAX=0x00000000121da7a0, RBX=0x0000000000000006, RCX=0x0000000000005000, RDX=0x00000000120e9160
+RSP=0x00000000121df7a0, RBP=0x0000000000000000, RSI=0x00000000121df7a0, RDI=0x0000000000000006
+R8 =0x0000000000000009, R9 =0x00000000091dc800, R10=0x00000000121df9e0, R11=0x00000000121dfac0
+R12=0x00000000121dfac0, R13=0x00000000121df8e8, R14=0x00000000121df9f0, R15=0x00000000025b0840
+RIP=0x000000006e58e357, EFLAGS=0x0000000000010206
+
+Top of Stack: (sp=0x00000000121df7a0)
+0x00000000121df7a0:   000000000f55c8d0 0000000000000000
+0x00000000121df7b0:   0000000000000000 000000006e45fd83
+0x00000000121df7c0:   0000000000000000 000000006e58ee9a
+0x00000000121df7d0:   00000000121df900 000000000f55c8d0
+0x00000000121df7e0:   00000000091dc800 00000000091dc800
+0x00000000121df7f0:   0000000000000000 0000000000000000
+0x00000000121df800:   0000000000000000 000000006e462fdd
+0x00000000121df810:   00000000091dc800 0000000000000033
+0x00000000121df820:   00000200002b0000 0000000000000000
+0x00000000121df830:   000000000f55c8d0 0000000000000005
+0x00000000121df840:   00000000091dc800 0000000000000000
+0x00000000121df850:   0000000000000000 0000000000000000
+0x00000000121df860:   0000000000000000 0000000007e12660
+0x00000000121df870:   00000000091dc800 00000000121df9f0
+0x00000000121df880:   0000000007e13f90 00000000121dfac0
+0x00000000121df890:   0000000000000000 0000000007e13f90 
+
+Instructions: (pc=0x000000006e58e357)
+0x000000006e58e337:   48 89 6c 24 30 33 ed 66 90 e8 db b4 07 00 ff c3
+0x000000006e58e347:   48 63 c8 48 8b c6 48 0f af cf 48 ff c7 48 2b c1
+0x000000006e58e357:   89 28 48 63 c3 48 3b 05 cd c3 52 00 7e db 48 8b
+0x000000006e58e367:   6c 24 30 48 8b 5c 24 38 48 8b 74 24 40 48 83 c4 
+
+
+Register to memory mapping:
+
+RAX=0x00000000121da7a0 is pointing into the stack for thread: 0x00000000091dc800
+RBX=0x0000000000000006 is an unknown value
+RCX=0x0000000000005000 is an unknown value
+RDX=0x00000000120e9160 is pointing into the stack for thread: 0x00000000091dc800
+RSP=0x00000000121df7a0 is pointing into the stack for thread: 0x00000000091dc800
+RBP=0x0000000000000000 is an unknown value
+RSI=0x00000000121df7a0 is pointing into the stack for thread: 0x00000000091dc800
+RDI=0x0000000000000006 is an unknown value
+R8 =0x0000000000000009 is an unknown value
+R9 =0x00000000091dc800 is a thread
+R10=0x00000000121df9e0 is pointing into the stack for thread: 0x00000000091dc800
+R11=0x00000000121dfac0 is pointing into the stack for thread: 0x00000000091dc800
+R12=0x00000000121dfac0 is pointing into the stack for thread: 0x00000000091dc800
+R13=0x00000000121df8e8 is pointing into the stack for thread: 0x00000000091dc800
+R14=0x00000000121df9f0 is pointing into the stack for thread: 0x00000000091dc800
+R15=0x00000000025b0840 is at code_begin+0 in an Interpreter codelet
+method entry point (kind = zerolocals)  [0x00000000025b0840, 0x00000000025b0b40]  768 bytes
+
+
+Stack: [0x00000000120e0000,0x00000000121e0000],  sp=0x00000000121df7a0,  free space=1021k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x1ce357]

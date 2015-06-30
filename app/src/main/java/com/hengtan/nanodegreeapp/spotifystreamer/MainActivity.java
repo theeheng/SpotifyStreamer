@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnItemClickListener {
 
@@ -94,8 +97,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         }
     }
 
-    public void onTrackClick(ParcelableTrack track) {
-        Toast.makeText(getApplicationContext(), "Track Id : " + track.id,
+    public void onTrackClick(ArrayList<ParcelableTrack> tracks, int trackIndex) {
+        Toast.makeText(getApplicationContext(), "Track Id : " + tracks.get(trackIndex).id,
                 Toast.LENGTH_SHORT).show();
     }
 

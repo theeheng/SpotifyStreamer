@@ -11,7 +11,10 @@
     <string name="unable_to_connect_to_spotify">Sorry we are unable to connect to spotify at the moment, please try again later.</string>
     <string name="no_artist_found">Sorry no artist found.</string>
     <string name="no_track_found">Sorry no top ten tracks found.</string>
-
+    <string name="background_image_str">Background image for album art</string>
+    <string name="play_pause">play or pause</string>
+    <string name="skip_next">skip to next</string>
+    <string name="skip_prev">skip to previous</string>
     <!-- Country Name in English -->
     <string name="country_AF">Afghanistan</string>
     <string name="country_AX">Åland Islands</string>
@@ -263,5 +266,8 @@
     <string name="country_ZM">Zambia</string>
     <string name="country_ZW">Zimbabwe</string>
     <string name="default_recommended">Standard (Recommended)</string>
+    <string name="title_activity_player">PlayerActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

@@ -15,13 +15,14 @@ import kaaes.spotify.webapi.android.models.Track;
 public class ParcelableTrack extends Track implements Parcelable {
 
     private String thumbnailImage;
+    private String playbackImage;
     private String albumName;
 
     private List<String> mParcelableString;
 
     private enum ParcelableTrackIndex
     {
-        TRACK_ID(0), TRACK_NAME(1), TRACK_ALBUM_NAME(2), TRACK_THUMBNAIL(3);
+        TRACK_ID(0), TRACK_NAME(1), TRACK_ALBUM_NAME(2), TRACK_THUMBNAIL(3), TRACK_PLAYBACKIMAGE(4), TRACK_PREVIEWURL(5);
 
         private int value;
 
@@ -36,6 +37,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.id = track.id;
         this.name = track.name;
         this.album = track.album;
+        this.preview_url = track.preview_url;
     }
 
     ParcelableTrack(Parcel in) {
@@ -44,6 +46,8 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.name = mParcelableString.get(ParcelableTrackIndex.TRACK_NAME.ordinal());
         this.albumName = mParcelableString.get(ParcelableTrackIndex.TRACK_ALBUM_NAME.ordinal());
         this.thumbnailImage = mParcelableString.get(ParcelableTrackIndex.TRACK_THUMBNAIL.ordinal());
+        this.playbackImage = mParcelableString.get(ParcelableTrackIndex.TRACK_PLAYBACKIMAGE.ordinal());
+        this.preview_url = mParcelableString.get(ParcelableTrackIndex.TRACK_PREVIEWURL.ordinal());
     }
 
     public void setAlbumName(String value) {
@@ -79,6 +83,10 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.thumbnailImage = value;
     }
 
+    public void setPlaybackImage(String value) {
+        this.playbackImage = value;
+    }
+
     public String getThumbnailImage() {
 
         if(this.thumbnailImage == null)
@@ -88,6 +96,18 @@ public class ParcelableTrack extends Track implements Parcelable {
         else
         {
             return this.thumbnailImage;
+        }
+    }
+
+    public String getPlaybackImage() {
+
+        if(this.playbackImage == null)
+        {
+            return GetPlaybackImageFromTrack();
+        }
+        else
+        {
+            return this.playbackImage;
         }
     }
 
@@ -113,6 +133,19 @@ public class ParcelableTrack extends Track implements Parcelable {
             return null;
         }
     }
+
+    private String GetPlaybackImageFromTrack()
+    {
+        if(this.album != null && this.album.images.size() > 0)
+        {
+            return this.album.images.get(0).url;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
 
@@ -121,6 +154,8 @@ public class ParcelableTrack extends Track implements Parcelable {
         values.add(ParcelableTrackIndex.TRACK_NAME.ordinal(),this.name);
         values.add(ParcelableTrackIndex.TRACK_ALBUM_NAME.ordinal(),getalbumName());
         values.add(ParcelableTrackIndex.TRACK_THUMBNAIL.ordinal(),getThumbnailImage());
+        values.add(ParcelableTrackIndex.TRACK_PLAYBACKIMAGE.ordinal(),getPlaybackImage());
+        values.add(ParcelableTrackIndex.TRACK_PREVIEWURL.ordinal(),this.preview_url);
         dest.writeStringList(values);
     }
 

@@ -1,0 +1,61 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 762656 bytes for Chunk::new
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (allocation.cpp:323), pid=4444, tid=17508
+#
+# JRE version: Java(TM) SE Runtime Environment (7.0_71-b14) (build 1.7.0_71-b14)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (24.71-b01 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000000076ae800):  JavaThread "C2 CompilerThread1" daemon [_thread_in_native, id=17508, stack(0x000000000a3a0000,0x000000000a4a0000)]
+
+Stack: [0x000000000a3a0000,0x000000000a4a0000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+
+[error occurred during error reporting (printing native stack), id 0xc0000005]
+
+
+Current CompileTask:
+C2:   1716  216   !         com.android.dx.cf.code.Ropper::processBlock (1101 bytes)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00000000076af800 JavaThread "Service Thread" daemon [_thread_blocked, id=17116, stack(0x0000000009cc0000,0x0000000009dc0000)]
+=>0x00000000076ae800 JavaThread "C2 CompilerThread1" daemon [_thread_in_native, id=17508, stack(0x000000000a3a0000,0x000000000a4a0000)]
+  0x00000000076a7800 JavaThread "C2 CompilerThread0" daemon [_thread_in_native, id=6224, stack(0x000000000a190000,0x000000000a290000)]
+  0x00000000076a6800 JavaThread "Attach Listener" daemon [_thread_blocked, id=14360, stack(0x0000000009ff0000,0x000000000a0f0000)]
+  0x00000000076a6000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=8228, stack(0x0000000009df0000,0x0000000009ef0000)]
+  0x00000000021ae000 JavaThread "Finalizer" daemon [_thread_blocked, id=18384, stack(0x0000000009ba0000,0x0000000009ca0000)]
+  0x00000000021ad000 JavaThread "Reference Handler" daemon [_thread_blocked, id=7416, stack(0x00000000099a0000,0x0000000009aa0000)]
+  0x0000000002119000 JavaThread "main" [_thread_in_Java, id=17792, stack(0x0000000002490000,0x0000000002590000)]
+
+Other Threads:
+  0x000000000768d000 VMThread [stack: 0x0000000009770000,0x0000000009870000] [id=16980]
+  0x0000000008869800 WatcherThread [stack: 0x000000000a570000,0x000000000a670000] [id=16500]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ PSYoungGen     
