@@ -220,7 +220,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
 
     private void GetTracks(String countryCode)
     {
-        Glide.with(getActivity()).load(mArtist.getThumbnailImage()).into(mImageView);
+        Glide.with(getActivity()).load(mArtist.getThumbnailImage()).fitCenter().into(mImageView);
         mTitleView.setText(mArtist.name);
 
         if(!mTwoPane)

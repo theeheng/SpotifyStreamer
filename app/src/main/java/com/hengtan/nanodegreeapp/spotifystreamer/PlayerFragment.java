@@ -1,6 +1,7 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,7 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+
 
 import java.util.ArrayList;
 
@@ -37,11 +38,12 @@ import butterknife.OnClick;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
+import android.widget.MediaController.MediaPlayerControl;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PlayerFragment extends DialogFragment {
+public class PlayerFragment extends DialogFragment implements MediaPlayerControl {
 
     private boolean mTwoPane = false;
     static final String TRACKINDEX = "TRACKINDEX";
@@ -146,6 +148,12 @@ public class PlayerFragment extends DialogFragment {
     private Intent playIntent;
     private boolean musicBound=false;
 
+    private MusicController controller;
+
+    //activity and playback pause flags
+    private boolean paused=false, playbackPaused=false;
+
+
     //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
 
@@ -156,9 +164,19 @@ public class PlayerFragment extends DialogFragment {
             musicSrv = binder.getService();
             //pass list
 
+            if(mBackgroundImage != null)
+            {
+                musicSrv.setPlayerFragmentBackgroundImage(mBackgroundImage);
+            }
+
+            if(controller != null)
+            {
+                musicSrv.setMusicController(controller);
+            }
+
             if(mTrackList != null) {
                 musicSrv.setList(mTrackList);
-                musicSrv.playSong(mTrackIndex);
+                songPicked();
             }
             musicBound = true;
         }
@@ -181,8 +199,8 @@ public class PlayerFragment extends DialogFragment {
 
     @Override
     public void onDestroy() {
-        getActivity().stopService(playIntent);
-        musicSrv=null;
+        //getActivity().stopService(playIntent);
+        //musicSrv=null;
         super.onDestroy();
     }
 
@@ -196,10 +214,10 @@ public class PlayerFragment extends DialogFragment {
         mPauseDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_pause_white_48dp);
         mPlayDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_play_arrow_white_48dp);
 
-        mControllers.setVisibility(VISIBLE);
-        mLoading.setVisibility(VISIBLE);
-        mPlayPause.setVisibility(VISIBLE);
-        mPlayPause.setImageDrawable(mPlayDrawable);
+       // mControllers.setVisibility(VISIBLE);
+       // mLoading.setVisibility(VISIBLE);
+       // mPlayPause.setVisibility(VISIBLE);
+       // mPlayPause.setImageDrawable(mPlayDrawable);
 
 
         if (savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY)) {
@@ -214,13 +232,12 @@ public class PlayerFragment extends DialogFragment {
                 //ProgressBarHelper.ShowProgressBar(progressBarHolder);
                 mTrackList = arguments.getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE);
                 mTrackIndex = arguments.getInt(PlayerFragment.TRACKINDEX);
-
-                Glide.with(this).load(mTrackList.get(mTrackIndex).getPlaybackImage()).into(mBackgroundImage);
-
             }
 
         }
 
+        //setup controller
+        setController();
 
         //mMediaBrowser = new MediaBrowser(this, new ComponentName(this, MusicService.class), mConnectionCallback, null);
 
@@ -292,4 +309,141 @@ public class PlayerFragment extends DialogFragment {
     private void updateProgress() {
 
     }
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        if(musicSrv!=null && musicBound && musicSrv.isPng())
+            return musicSrv.getPosn();
+        else return 0;
+    }
+
+    @Override
+    public int getDuration() {
+        if(musicSrv!=null && musicBound && musicSrv.isPng())
+            return musicSrv.getDur();
+        else return 0;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        if(musicSrv!=null && musicBound)
+            return musicSrv.isPng();
+        return false;
+    }
+
+    @Override
+    public void pause() {
+        playbackPaused=true;
+        musicSrv.pausePlayer();
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        musicSrv.seek(pos);
+    }
+
+    @Override
+    public void start() {
+        musicSrv.go();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        paused=true;
+    }
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(paused){
+            setController();
+            paused=false;
+        }
+    }
+
+
+    @Override
+    public void onStop() {
+        controller.hide();
+        super.onStop();
+    }
+
+
+
+    //set the controller up
+    private void setController(){
+        controller = new MusicController(getActivity());
+        //set previous and next button listeners
+        controller.setPrevNextListeners(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNext();
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPrev();
+            }
+        });
+        //set and show
+        controller.setMediaPlayer(this);
+        controller.setAnchorView(mBackgroundImage);
+        controller.setEnabled(true);
+    }
+
+    private void playNext(){
+        musicSrv.playNext();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+
+    }
+
+    private void playPrev(){
+        musicSrv.playPrev();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+
+    }
+
+    //user song select
+    public void songPicked(){
+        musicSrv.setSong(mTrackIndex);
+        musicSrv.playSong();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+    }
+
 }
