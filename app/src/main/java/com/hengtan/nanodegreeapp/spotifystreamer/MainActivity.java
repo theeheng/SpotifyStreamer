@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     private TopTenTracksFragment mTopTenFragment;
     private PlayerFragment mPlayerFragment;
     private SearchArtistFragment mSearchArtistFragment;
+    private MenuItem mPlayingNow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        mPlayingNow = menu.findItem(R.id.action_playing_now);
+        mPlayingNow.setVisible(false);
+
         return true;
     }
 
@@ -74,6 +79,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, SettingsActivity.class);
             startActivityForResult(i, RESULT_SETTINGS);
+            return true;
+        }
+        if (id == R.id.action_playing_now) {
             return true;
         }
 
@@ -129,5 +137,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             }
         }
     }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(mPlayingNow != null) {
+            mPlayingNow.setVisible(PlayerUtil.isMusicServiceRunning());
+        }
+    }
+
+
 
 }
