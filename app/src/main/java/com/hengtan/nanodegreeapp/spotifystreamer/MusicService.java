@@ -134,6 +134,7 @@ public class MusicService extends Service implements
     public void onCompletion(MediaPlayer mp) {
         //check if playback has reached the end of a track
         if(player.getCurrentPosition()>0){
+
             mp.reset();
             playNext();
         }

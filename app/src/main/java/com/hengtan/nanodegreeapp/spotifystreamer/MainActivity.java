@@ -2,6 +2,7 @@ package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     private PlayerFragment mPlayerFragment;
     private SearchArtistFragment mSearchArtistFragment;
     private MenuItem mPlayingNow;
+    private AnimationDrawable mPlayNowAnimationDrawable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         mPlayingNow = menu.findItem(R.id.action_playing_now);
+        mPlayNowAnimationDrawable = (AnimationDrawable) mPlayingNow.getIcon();
         mPlayingNow.setVisible(false);
 
         return true;
@@ -144,7 +147,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         super.onResume();
 
         if(mPlayingNow != null) {
-            mPlayingNow.setVisible(PlayerUtil.isMusicServiceRunning());
+
+            if(PlayerUtil.isMusicServiceRunning())
+            {
+                mPlayingNow.setVisible(true);
+                mPlayNowAnimationDrawable.start();
+            }
+            else
+            {
+                mPlayingNow.setVisible(true);
+                mPlayNowAnimationDrawable.stop();
+            }
+
         }
     }
 
