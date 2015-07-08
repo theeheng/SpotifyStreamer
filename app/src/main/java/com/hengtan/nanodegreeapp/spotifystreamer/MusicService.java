@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -84,8 +85,13 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
-    public void setList(ArrayList<ParcelableTrack> theSongs){
+    public void setSongs(ArrayList<ParcelableTrack> theSongs){
         songs=theSongs;
+    }
+
+    public ArrayList<ParcelableTrack> getSongs()
+    {
+        return this.songs;
     }
 
     public void setPlayerFragmentBackgroundImage(ImageView backgroundImageView)
@@ -152,7 +158,9 @@ public class MusicService extends Service implements
         //start playback
         player.start();
 
-        mMusicController.show(0);
+        if(mMusicController != null) {
+            mMusicController.show(0);
+        }
 
         //notification
         Intent notIntent = new Intent(this, MainActivity.class);
@@ -233,5 +241,26 @@ public class MusicService extends Service implements
     public void setShuffle(){
         if(shuffle) shuffle=false;
         else shuffle=true;
+    }
+
+    public void UpdatePlayerFragmentBackgoundImage()
+    {
+        if(this.songs != null && this.songs.size() > 0 && this.songs.size() > this.songPosn)
+        {
+            ParcelableTrack playSong = songs.get(songPosn);
+
+            if(playSong.getPlaybackImage() != null && this.mPlayerFragmentBackgroundImage != null)
+            {
+                Glide.with(this).load(playSong.getPlaybackImage()).fitCenter().into(this.mPlayerFragmentBackgroundImage);
+            }
+
+            mMusicController.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+    public MusicController getMusicController()
+    {
+        return mMusicController;
     }
 }

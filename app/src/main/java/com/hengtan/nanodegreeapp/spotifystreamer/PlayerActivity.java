@@ -35,14 +35,17 @@ public class PlayerActivity extends ActionBarActivity {
 
         if(savedInstanceState == null)
         {
-            Bundle arguments = new Bundle();
-
-            arguments.putInt(PlayerFragment.TRACKINDEX, getIntent().getExtras().getInt(PlayerFragment.TRACKINDEX));
-            arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, getIntent().getExtras().getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE));
-
             this.mPlayerFragment = new PlayerFragment();
             this.mPlayerFragment.setTwoPane(false);
-            this.mPlayerFragment.setArguments(arguments);
+
+            if(getIntent().getExtras() != null) {
+
+                Bundle arguments = new Bundle();
+
+                arguments.putInt(PlayerFragment.TRACKINDEX, getIntent().getExtras().getInt(PlayerFragment.TRACKINDEX));
+                arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, getIntent().getExtras().getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE));
+                this.mPlayerFragment.setArguments(arguments);
+            }
 
             getFragmentManager().beginTransaction().add(R.id.player_container, mPlayerFragment).commit();
         }

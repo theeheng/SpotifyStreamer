@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             return true;
         }
         if (id == R.id.action_playing_now) {
+            Intent intent = new Intent(this, PlayerActivity.class);
+            startActivity(intent);
             return true;
         }
 

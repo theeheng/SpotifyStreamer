@@ -99,6 +99,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     private ArrayList<ParcelableTrack> mTrackList;
     private int mTrackIndex;
     private String TRACK_KEY = "track_list";
+private View fview;
 
     private final Runnable mUpdateProgressTask = new Runnable() {
         @Override
@@ -175,8 +176,19 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
             }
 
             if(mTrackList != null) {
-                musicSrv.setList(mTrackList);
+                musicSrv.setSongs(mTrackList);
                 songPicked();
+            }
+            else
+            {
+                musicSrv.UpdatePlayerFragmentBackgoundImage();
+                fview.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        controller.show(5000);
+                    }
+                });
             }
             musicBound = true;
         }
@@ -208,8 +220,8 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_player, container, false);
-        ButterKnife.inject(this, view);
+        fview = inflater.inflate(R.layout.fragment_player, container, false);
+        ButterKnife.inject(this, fview);
 
         mPauseDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_pause_white_48dp);
         mPlayDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_play_arrow_white_48dp);
@@ -241,7 +253,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
         //mMediaBrowser = new MediaBrowser(this, new ComponentName(this, MusicService.class), mConnectionCallback, null);
 
-        return view;
+        return fview;
     }
 
     @OnClick(R.id.next)
@@ -416,6 +428,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
         controller.setMediaPlayer(this);
         controller.setAnchorView(mBackgroundImage);
         controller.setEnabled(true);
+
     }
 
     private void playNext(){
