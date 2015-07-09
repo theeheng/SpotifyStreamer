@@ -9,7 +9,6 @@
         android:id="@+id/notification_track_thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_margin="8dp"
         android:contentDescription="@string/app_name"
         android:src="@mipmap/ic_notification" />
 
@@ -56,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:src="@mipmap/uamp_ic_play_arrow_white_48dp"
+            android:src="@mipmap/uamp_ic_pause_white_48dp"
             android:contentDescription="@string/play_pause" />
 
         <ImageView
@@ -64,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:src="@mipmap/ic_close_black_24dp"
+            android:src="@mipmap/uamp_ic_stop_white_48dp"
             android:contentDescription="@string/play_pause" />
     </LinearLayout>
 

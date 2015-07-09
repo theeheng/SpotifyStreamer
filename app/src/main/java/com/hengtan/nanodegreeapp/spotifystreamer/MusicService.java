@@ -16,6 +16,7 @@ import android.os.IBinder;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Handler;
 
 import android.content.ContentUris;
 import android.media.AudioManager;
@@ -30,6 +31,8 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -58,6 +61,8 @@ public class MusicService extends Service implements
 
     private MusicController mMusicController;
 
+    private Notification playerNotification;
+
     @Override
     public IBinder onBind(Intent intent) {
         return musicBind;
@@ -67,9 +72,11 @@ public class MusicService extends Service implements
     public boolean onUnbind(Intent intent){
         //player.stop();
         //player.release();
-        return false;
+        //mMusicController = null;
+        return true;
     }
 
+    @Override
     public void onCreate(){
         //create the service
         //create the service
@@ -169,40 +176,55 @@ public class MusicService extends Service implements
             mMusicController.show(0);
         }
 
+       BuildNotification(R.mipmap.uamp_ic_pause_white_48dp);
+    }
+
+    public void BuildNotification(final int playPauseControlResourceId) {
+
+        final ParcelableTrack song = songs.get(songPosn);
+        final Notification.Builder builder = new Notification.Builder(this);
+
         //notification
-        Intent notIntent = new Intent(this, MainActivity.class);
+        Intent notIntent = new Intent(this, PlayerActivity.class);
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendInt = PendingIntent.getActivity(this, 0,
                 notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        ParcelableTrack song = songs.get(songPosn);
-
-        Notification.Builder builder = new Notification.Builder(this);
-
         builder.setContentIntent(pendInt)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.ic_notification)
                 .setTicker(song.name)
                 .setOngoing(true)
                 .setContentTitle("Playing")
                 .setContentText(song.getArtistName());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            // build a complex notification, with buttons and such
-            //
-            builder = builder.setContent(getPlayerNotificationView(song.getThumbnailImage(), song.getalbumName(), song.name));
-        }
+        String thumbnailImage = song.getThumbnailImage();
 
-        // Create Notification Manager
-        NotificationManager notificationmanager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Build Notification with Notification Manager
-        notificationmanager.notify(NOTIFY_ID, builder.build());
+        if(thumbnailImage != null && (!thumbnailImage.isEmpty())) {
+
+            Glide.with(getApplicationContext())
+                    .load(thumbnailImage)
+                    .asBitmap()
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                            playerNotification = builder.setContent(getPlayerNotificationView(Bitmap.createScaledBitmap(resource, 140, 140, false), song.getalbumName(), song.name, playPauseControlResourceId)).build();
+                            startForeground(NOTIFY_ID, playerNotification);
+
+                        }
+                    });
+        }
+        else
+        {
+            playerNotification = builder.setContent(getPlayerNotificationView(null, song.getalbumName(), song.name, playPauseControlResourceId)).build();
+            startForeground(NOTIFY_ID, playerNotification);
+        }
     }
+
 
     public void setSong(int songIndex){
         songPosn=songIndex;
     }
 
-    //playback methods
     public int getPosn(){
         return player.getCurrentPosition();
     }
@@ -212,11 +234,25 @@ public class MusicService extends Service implements
     }
 
     public boolean isPng(){
-        return player.isPlaying();
+        try {
+            return player.isPlaying();
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     public void pausePlayer(){
         player.pause();
+        BuildNotification(R.mipmap.uamp_ic_play_arrow_white_48dp);
+    }
+
+    public void stopPlayer()
+    {
+        player.stop();
+        player.release();
+        stopSelf(NOTIFY_ID);
     }
 
     public void seek(int posn){
@@ -225,6 +261,7 @@ public class MusicService extends Service implements
 
     public void go(){
         player.start();
+        BuildNotification(R.mipmap.uamp_ic_pause_white_48dp);
     }
 
     //skip to previous track
@@ -252,7 +289,7 @@ public class MusicService extends Service implements
 
     @Override
     public void onDestroy() {
-        stopForeground(true);
+        //stopForeground(true);
     }
 
     //toggle shuffle
@@ -277,26 +314,20 @@ public class MusicService extends Service implements
         }
     }
 
-    private RemoteViews getPlayerNotificationView(String trackThumbnail, String albumTitle, String trackTitle) {
+    private RemoteViews getPlayerNotificationView(Bitmap trackThumbnail, String albumTitle, String trackTitle, int playPauseControlResourceId) {
         // Using RemoteViews to bind custom layouts into Notification
-        RemoteViews notificationView = new RemoteViews(getPackageName(), R.layout.service_player_notification);
+        final RemoteViews notificationView = new RemoteViews(getPackageName(), R.layout.service_player_notification);
 
-        // Locate and set the Image into customnotificationtext.xml ImageViews
-        //Glide.with(this).load(trackThumbnail).fitCenter().into();
+        if(trackThumbnail != null)
+            notificationView.setImageViewBitmap(R.id.notification_track_thumbnail, trackThumbnail);
+        else
+            notificationView.setImageViewResource(R.id.notification_track_thumbnail, R.mipmap.ic_notification);
 
-        try
-        {
-            Bitmap thumbnailBitmap = Glide.with(this).load(trackThumbnail).asBitmap().into(-1, -1).get();
-            notificationView.setImageViewBitmap(R.id.notification_track_thumbnail, thumbnailBitmap);
-        }
-        catch(Exception ex)
-        {
-            notificationView.setImageViewResource(R.id.notification_track_thumbnail, R.mipmap.ic_launcher);
-        }
+        notificationView.setImageViewResource(R.id.notification_play_button, playPauseControlResourceId);
 
         // Locate and set the Text into customnotificationtext.xml TextViews
-        notificationView.setTextViewText(R.id.title, albumTitle);
-        notificationView.setTextViewText(R.id.text, trackTitle);
+        notificationView.setTextViewText(R.id.notification_album_title, albumTitle);
+        notificationView.setTextViewText(R.id.notification_track_title, trackTitle);
 
         //this is the intent that is supposed to be called when the button is clicked
         Intent notificationPlayIntent = new Intent(this, NotificationPlayPauseButtonListener.class);
@@ -308,35 +339,5 @@ public class MusicService extends Service implements
         notificationView.setOnClickPendingIntent(R.id.notification_stop_button, pendingNotificationStopIntent);
 
         return notificationView;
-    }
-
-    public static class NotificationPlayPauseButtonListener extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("notification", "play button clicked");
-            Toast toastMessage = Toast.makeText(context,
-                    "play pause button clicked",
-                    Toast.LENGTH_LONG);
-            toastMessage.show();
-        }
-    }
-
-    public static class NotificationStopButtonListener extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("notification", "stop button clicked");
-            Toast toastMessage = Toast.makeText(context,
-                    "stop button clicked",
-                    Toast.LENGTH_LONG);
-            toastMessage.show();
-
-            // Create Notification Manager
-            NotificationManager notificationmanager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-            // Build Notification with Notification Manager
-            notificationmanager.cancel(NOTIFY_ID);
-
-            //context.stopService(new Intent(context, MusicService.class));
-
-        }
     }
 }

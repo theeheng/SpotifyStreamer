@@ -88,62 +88,14 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     @InjectView(R.id.background_image)
     protected ImageView mBackgroundImage;
 
-    private static final String TAG = PlayerFragment.class.getSimpleName();
-    private static final long PROGRESS_UPDATE_INTERNAL = 1000;
-    private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
-
-    private final Handler mHandler = new Handler();
-    private MediaBrowser mMediaBrowser;
-    private PlaybackState mLastPlaybackState;
-
     private ArrayList<ParcelableTrack> mTrackList;
     private int mTrackIndex;
     private String TRACK_KEY = "track_list";
-private View fview;
-
-    private final Runnable mUpdateProgressTask = new Runnable() {
-        @Override
-        public void run() {
-            updateProgress();
-        }
-    };
-
-    /*
-    private final MediaController.Callback mCallback = new MediaController.Callback() {
-
-        @Override
-        public void onPlaybackStateChanged(@NonNull PlaybackState state) {
-            Log.d(TAG, "onPlaybackstate changed : " + state);
-            //updatePlaybackState(state);
-        }
-
-        @Override
-        public void onMetadataChanged(MediaMetadata metadata) {
-            if (metadata != null) {
-                //updateMediaDescription(metadata.getDescription());
-                //updateDuration(metadata);
-            }
-        }
-    };
-   */
+    private View fragmentView;
 
     public void setTwoPane(boolean twoPane) {
         this.mTwoPane = twoPane;
     }
-
-    public PlayerFragment() {
-        // Required empty public constructor
-    }
-
-    /*private final MediaBrowser.ConnectionCallback mConnectionCallback =
-            new MediaBrowser.ConnectionCallback() {
-                @Override
-                public void onConnected() {
-                    Log.d(TAG, "onConnected");
-                    connectToSession(mMediaBrowser.getSessionToken());
-                }
-            };
-*/
 
     private MusicService musicSrv;
     private Intent playIntent;
@@ -182,7 +134,7 @@ private View fview;
             else
             {
                 musicSrv.UpdatePlayerFragmentBackgoundImage();
-                fview.post(new Runnable() {
+                fragmentView.post(new Runnable() {
 
                     @Override
                     public void run() {
@@ -200,20 +152,23 @@ private View fview;
     };
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
         if(playIntent==null){
             playIntent = new Intent(getActivity(), MusicService.class);
             getActivity().bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             getActivity().startService(playIntent);
         }
+
     }
 
     @Override
     public void onDestroy() {
         //getActivity().stopService(playIntent);
         //musicSrv=null;
-        musicSrv.setMusicController(null);
+        //getActivity().unbindService(musicConnection);
         super.onDestroy();
     }
 
@@ -221,16 +176,11 @@ private View fview;
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        fview = inflater.inflate(R.layout.fragment_player, container, false);
-        ButterKnife.inject(this, fview);
+        fragmentView = inflater.inflate(R.layout.fragment_player, container, false);
+        ButterKnife.inject(this, fragmentView);
 
         mPauseDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_pause_white_48dp);
         mPlayDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_play_arrow_white_48dp);
-
-       // mControllers.setVisibility(VISIBLE);
-       // mLoading.setVisibility(VISIBLE);
-       // mPlayPause.setVisibility(VISIBLE);
-       // mPlayPause.setImageDrawable(mPlayDrawable);
 
 
         if (savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY)) {
@@ -242,7 +192,6 @@ private View fview;
 
             if(arguments != null)
             {
-                //ProgressBarHelper.ShowProgressBar(progressBarHolder);
                 mTrackList = arguments.getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE);
                 mTrackIndex = arguments.getInt(PlayerFragment.TRACKINDEX);
             }
@@ -252,75 +201,7 @@ private View fview;
         //setup controller
         setController();
 
-        //mMediaBrowser = new MediaBrowser(this, new ComponentName(this, MusicService.class), mConnectionCallback, null);
-
-        return fview;
-    }
-
-    @OnClick(R.id.next)
-    public void NextClicked(View view) {
-        //MediaController.TransportControls controls = getActivity().getMediaController().getTransportControls();
-        //controls.skipToNext();
-    }
-
-    @OnClick(R.id.prev)
-    public void PreviousClicked(View view) {
-        //MediaController.TransportControls controls = getActivity().getMediaController().getTransportControls();
-        //controls.skipToPrevious();
-    }
-
-    @OnClick(R.id.imageView1)
-    public void PlayPauseClicked(View view) {
-        /*PlaybackState state = getActivity().getMediaController().getPlaybackState();
-        if (state != null) {
-            MediaController.TransportControls controls = getActivity().getMediaController().getTransportControls();
-            switch (state.getState()) {
-                case PlaybackState.STATE_PLAYING: // fall through
-                case PlaybackState.STATE_BUFFERING:
-                    controls.pause();
-                    //stopSeekbarUpdate();
-                    break;
-                case PlaybackState.STATE_PAUSED:
-                case PlaybackState.STATE_STOPPED:
-                    controls.play();
-                    //scheduleSeekbarUpdate();
-                    break;
-                default:
-                    Log.d(TAG, "onClick with state : "+state.getState());
-            }
-        }*/
-    }
-
-    /*private void connectToSession(MediaSession.Token token) {
-        MediaController mediaController = new MediaController(getActivity(), token);
-
-        if (mediaController.getMetadata() == null) {
-            finish();
-            return;
-        }
-
-        getActivity().setMediaController(mediaController);
-        mediaController.registerCallback(mCallback);
-        PlaybackState state = mediaController.getPlaybackState();
-
-
-        updatePlaybackState(state);
-
-        MediaMetadata metadata = mediaController.getMetadata();
-        if (metadata != null) {
-            updateMediaDescription(metadata.getDescription());
-            updateDuration(metadata);
-        }
-        updateProgress();
-        if (state != null && (state.getState() == PlaybackState.STATE_PLAYING ||
-                state.getState() == PlaybackState.STATE_BUFFERING)) {
-            scheduleSeekbarUpdate();
-        }
-
-    }*/
-
-    private void updateProgress() {
-
+        return fragmentView;
     }
 
     @Override
@@ -385,7 +266,7 @@ private View fview;
         musicSrv.go();
     }
 
-    @Override
+    /*@Override
     public void onPause(){
         super.onPause();
         paused=true;
@@ -400,19 +281,18 @@ private View fview;
             paused=false;
         }
     }
+*/
 
-
-    @Override
+    /*@Override
     public void onStop() {
         controller.hide();
         super.onStop();
-    }
-
+    }*/
 
 
     //set the controller up
     private void setController(){
-        controller = new MusicController(getActivity());
+        controller = new MusicController(getActivity(), mTwoPane);
         //set previous and next button listeners
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override

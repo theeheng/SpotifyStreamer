@@ -5,6 +5,7 @@
     <!-- This permission is necessary in order for spotify streamer to perform network access. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
         android:allowBackup="true"
@@ -35,8 +36,8 @@
         </activity>
 
         <service android:name="com.hengtan.nanodegreeapp.spotifystreamer.MusicService" />
-        <receiver android:name="MusicService$NotificationPlayPauseButtonListener" />
-        <receiver android:name="MusicService$NotificationStopButtonListener" />
+        <receiver android:name="NotificationPlayPauseButtonListener" />
+        <receiver android:name="NotificationStopButtonListener" />
     </application>
 
 </manifest>

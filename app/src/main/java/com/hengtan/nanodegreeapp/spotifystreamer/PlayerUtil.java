@@ -25,4 +25,20 @@ public class PlayerUtil {
         return false;
     }
 
+    public static boolean isLastActivity(String activityClassName){
+        final ActivityManager activityManager = (ActivityManager) com.hengtan.nanodegreeapp.spotifystreamer.Application.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(10);
+
+        if(taskList.get(0).numActivities == 1 &&
+                taskList.get(0).topActivity.getClassName().equals(activityClassName)) {
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
 }

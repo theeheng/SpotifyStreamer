@@ -5,10 +5,14 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -68,8 +72,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         mPlayingNow = menu.findItem(R.id.action_playing_now);
+
         mPlayNowAnimationDrawable = (AnimationDrawable) mPlayingNow.getIcon();
-        mPlayingNow.setVisible(false);
+
+        UpdatePlayingNowActionMenuItem();
 
         return true;
     }
@@ -149,21 +155,32 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
     @Override
     public void onResume() {
-        super.onResume();
 
+        UpdatePlayingNowActionMenuItem();
+
+        super.onResume();
+    }
+
+    private void UpdatePlayingNowActionMenuItem() {
         if(mPlayingNow != null) {
 
             if(PlayerUtil.isMusicServiceRunning())
             {
                 mPlayingNow.setVisible(true);
-                mPlayNowAnimationDrawable.start();
+                Resources res = getResources();
+                try {
+                  //  mPlayNowAnimationDrawable = (AnimationDrawable)Drawable.createFromXml(res, res.getXml(R.xml.ic_equalizer_white_36dp));
+                    mPlayNowAnimationDrawable.start();
+                  //  mPlayingNow.setIcon(mPlayNowAnimationDrawable);
+                } catch (Exception ex) {
+                    Log.e("Error", "Exception loading animation drawable");
+                }
             }
             else
             {
-                mPlayingNow.setVisible(true);
+                mPlayingNow.setVisible(false);
                 mPlayNowAnimationDrawable.stop();
             }
-
         }
     }
 
