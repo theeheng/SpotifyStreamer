@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -62,6 +63,12 @@ public class MusicService extends Service implements
     private MusicController mMusicController;
 
     private Notification playerNotification;
+
+    private TextView mTrackNameTextView;
+
+    private TextView mAlbumNameTextView;
+
+    private TextView mArtistTextView;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -118,6 +125,13 @@ public class MusicService extends Service implements
         this.mMusicController = mc;
     }
 
+    public void setTrackDescriptionView(TextView line1, TextView line2, TextView line3)
+    {
+        this.mTrackNameTextView = line1;
+        this.mAlbumNameTextView = line2;
+        this.mArtistTextView = line3;
+    }
+
     public class MusicBinder extends Binder {
         MusicService getService() {
             return MusicService.this;
@@ -138,10 +152,8 @@ public class MusicService extends Service implements
         try{
             player.setDataSource(getApplicationContext(), trackUri);
 
-            if(playSong.getPlaybackImage() != null && this.mPlayerFragmentBackgroundImage != null)
-            {
-                Glide.with(this).load(playSong.getPlaybackImage()).fitCenter().into(this.mPlayerFragmentBackgroundImage);
-            }
+            UpdatePlayerBackgroundImage(playSong);
+            UpdatePlayerTextDescription(playSong);
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
@@ -207,7 +219,12 @@ public class MusicService extends Service implements
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                            playerNotification = builder.setContent(getPlayerNotificationView(Bitmap.createScaledBitmap(resource, 140, 140, false), song.getalbumName(), song.name, playPauseControlResourceId)).build();
+
+                            // referencing to the dimension resource XML just created
+                            int bitmapWidth = Math.round(getResources().getDimension(R.dimen.notification_large_icon_width));
+                            int bitmapHeight = Math.round(getResources().getDimension(R.dimen.notification_large_icon_height));
+
+                            playerNotification = builder.setContent(getPlayerNotificationView(Bitmap.createScaledBitmap(resource, bitmapWidth , bitmapHeight, false), song.getalbumName(), song.name, playPauseControlResourceId)).build();
                             startForeground(NOTIFY_ID, playerNotification);
 
                         }
@@ -298,16 +315,15 @@ public class MusicService extends Service implements
         else shuffle=true;
     }
 
-    public void UpdatePlayerFragmentBackgoundImage()
+    public void UpdatePlayerFragmentView()
     {
         if(this.songs != null && this.songs.size() > 0 && this.songs.size() > this.songPosn)
         {
             ParcelableTrack playSong = songs.get(songPosn);
 
-            if(playSong.getPlaybackImage() != null && this.mPlayerFragmentBackgroundImage != null)
-            {
-                Glide.with(this).load(playSong.getPlaybackImage()).fitCenter().into(this.mPlayerFragmentBackgroundImage);
-            }
+            UpdatePlayerBackgroundImage(playSong);
+
+            UpdatePlayerTextDescription(playSong);
 
             mMusicController.setVisibility(View.VISIBLE);
 
@@ -326,8 +342,8 @@ public class MusicService extends Service implements
         notificationView.setImageViewResource(R.id.notification_play_button, playPauseControlResourceId);
 
         // Locate and set the Text into customnotificationtext.xml TextViews
-        notificationView.setTextViewText(R.id.notification_album_title, albumTitle);
-        notificationView.setTextViewText(R.id.notification_track_title, trackTitle);
+        notificationView.setTextViewText(R.id.notification_album_title, TruncateNotificationText(albumTitle));
+        notificationView.setTextViewText(R.id.notification_track_title, TruncateNotificationText(trackTitle));
 
         //this is the intent that is supposed to be called when the button is clicked
         Intent notificationPlayIntent = new Intent(this, NotificationPlayPauseButtonListener.class);
@@ -339,5 +355,35 @@ public class MusicService extends Service implements
         notificationView.setOnClickPendingIntent(R.id.notification_stop_button, pendingNotificationStopIntent);
 
         return notificationView;
+    }
+
+    private String TruncateNotificationText(String originalText)
+    {
+        String truncatedString = "...";
+
+        if(originalText.length() > 20)
+        {
+            return originalText.substring(0, 19).concat(truncatedString);
+        }
+        else
+        {
+            return originalText;
+        }
+    }
+
+    private void UpdatePlayerBackgroundImage(ParcelableTrack playSong)
+    {
+        if(playSong.getPlaybackImage() != null && this.mPlayerFragmentBackgroundImage != null)
+        {
+            Glide.with(this).load(playSong.getPlaybackImage()).fitCenter().into(this.mPlayerFragmentBackgroundImage);
+        }
+    }
+
+    private void UpdatePlayerTextDescription(ParcelableTrack playSong) {
+        if(this.mTrackNameTextView != null && this.mAlbumNameTextView != null && this.mArtistTextView != null) {
+            this.mTrackNameTextView.setText(playSong.name);
+            this.mAlbumNameTextView.setText(playSong.getalbumName());
+            this.mArtistTextView.setText(playSong.getArtistName());
+        }
     }
 }

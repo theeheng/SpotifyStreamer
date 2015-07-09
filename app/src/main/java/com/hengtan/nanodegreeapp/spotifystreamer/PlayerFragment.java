@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -49,24 +50,6 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     static final String TRACKINDEX = "TRACKINDEX";
     static final String TOPTENTRACKS_PARCELABLE = "TOPTENTRACKSPARCELABLE";
 
-    @InjectView(R.id.prev)
-    protected ImageView mSkipPrev;
-
-    @InjectView(R.id.next)
-    protected ImageView mSkipNext;
-
-    @InjectView(R.id.imageView1)
-    protected ImageView mPlayPause;
-
-    @InjectView(R.id.startText)
-    protected TextView mStart;
-
-    @InjectView(R.id.endText)
-    protected TextView mEnd;
-
-    @InjectView(R.id.seekBar1)
-    protected SeekBar mSeekbar;
-
     @InjectView(R.id.line1)
     protected TextView mLine1;
 
@@ -75,12 +58,6 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
     @InjectView(R.id.line3)
     protected TextView mLine3;
-
-    @InjectView(R.id.progressBar1)
-    protected ProgressBar mLoading;
-
-    @InjectView(R.id.controllers)
-    protected View mControllers;
 
     protected Drawable mPauseDrawable;
     protected Drawable mPlayDrawable;
@@ -127,13 +104,18 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
                 musicSrv.setMusicController(controller);
             }
 
+            if(mLine1 != null && mLine2 != null && mLine3 != null)
+            {
+                musicSrv.setTrackDescriptionView(mLine1, mLine2, mLine3);
+            }
+
             if(mTrackList != null) {
                 musicSrv.setSongs(mTrackList);
                 songPicked();
             }
             else
             {
-                musicSrv.UpdatePlayerFragmentBackgoundImage();
+                musicSrv.UpdatePlayerFragmentView();
                 fragmentView.post(new Runnable() {
 
                     @Override
@@ -162,6 +144,24 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
             getActivity().startService(playIntent);
         }
 
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+
+        if(mTwoPane) {
+            // safety check
+            if (getDialog() == null)
+                return;
+
+            int dialogWidth = getResources().getDimensionPixelSize(R.dimen.popup_width); // specify a value here
+            int dialogHeight = getResources().getDimensionPixelSize(R.dimen.popup_width); // specify a value here
+
+            getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
+        }
+        // ... other stuff you want to do in your onStart() method
     }
 
     @Override
@@ -292,7 +292,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
     //set the controller up
     private void setController(){
-        controller = new MusicController(getActivity(), mTwoPane);
+        controller = new MusicController(contex, mTwoPane);
         //set previous and next button listeners
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override

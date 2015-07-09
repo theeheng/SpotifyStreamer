@@ -119,7 +119,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if(albumName != null)
             {
                 vh.getBottomTextView().setVisibility(View.VISIBLE);
-                vh.getBottomTextView().setText(track.name);
+                vh.getBottomTextView().setText(albumName);
             }
 
             if(track.getThumbnailImage() != null && (!track.getThumbnailImage().equals(""))) {

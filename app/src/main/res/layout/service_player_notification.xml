@@ -24,7 +24,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/notification_album_title"
+            android:id="@+id/notification_track_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notification_album_title"
@@ -32,7 +32,7 @@
             />
 
         <TextView
-            android:id="@+id/notification_track_title"
+            android:id="@+id/notification_album_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notification_track_title"

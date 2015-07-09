@@ -32,7 +32,9 @@
         </activity>
         <activity
             android:name=".PlayerActivity"
-            android:label="@string/title_activity_player" >
+            android:label="@string/title_activity_player"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
 
         <service android:name="com.hengtan.nanodegreeapp.spotifystreamer.MusicService" />
