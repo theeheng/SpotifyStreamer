@@ -213,6 +213,7 @@ private View fview;
     public void onDestroy() {
         //getActivity().stopService(playIntent);
         //musicSrv=null;
+        musicSrv.setMusicController(null);
         super.onDestroy();
     }
 

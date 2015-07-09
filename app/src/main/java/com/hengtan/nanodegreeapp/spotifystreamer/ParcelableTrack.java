@@ -17,12 +17,12 @@ public class ParcelableTrack extends Track implements Parcelable {
     private String thumbnailImage;
     private String playbackImage;
     private String albumName;
-
+    private String artistName;
     private List<String> mParcelableString;
 
     private enum ParcelableTrackIndex
     {
-        TRACK_ID(0), TRACK_NAME(1), TRACK_ALBUM_NAME(2), TRACK_THUMBNAIL(3), TRACK_PLAYBACKIMAGE(4), TRACK_PREVIEWURL(5);
+        TRACK_ID(0), TRACK_NAME(1), TRACK_ALBUM_NAME(2), TRACK_THUMBNAIL(3), TRACK_PLAYBACKIMAGE(4), TRACK_PREVIEWURL(5), TRACK_ARTISTNAME(6);
 
         private int value;
 
@@ -49,6 +49,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.thumbnailImage = mParcelableString.get(ParcelableTrackIndex.TRACK_THUMBNAIL.ordinal());
         this.playbackImage = mParcelableString.get(ParcelableTrackIndex.TRACK_PLAYBACKIMAGE.ordinal());
         this.preview_url = mParcelableString.get(ParcelableTrackIndex.TRACK_PREVIEWURL.ordinal());
+        this.artistName = mParcelableString.get(ParcelableTrackIndex.TRACK_ARTISTNAME.ordinal());
     }
 
     public void setAlbumName(String value) {
@@ -78,7 +79,6 @@ public class ParcelableTrack extends Track implements Parcelable {
             return this.album.name;
         }
     }
-
 
     public void setThumbnailImage(String value) {
         this.thumbnailImage = value;
@@ -110,6 +110,16 @@ public class ParcelableTrack extends Track implements Parcelable {
         {
             return this.playbackImage;
         }
+    }
+
+    public void setArtistName(String artistName)
+    {
+        this.artistName = artistName;
+    }
+
+    public String getArtistName()
+    {
+        return this.artistName;
     }
 
     private String GetThumbnailImageFromTrack()
@@ -157,6 +167,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         values.add(ParcelableTrackIndex.TRACK_THUMBNAIL.ordinal(),getThumbnailImage());
         values.add(ParcelableTrackIndex.TRACK_PLAYBACKIMAGE.ordinal(),getPlaybackImage());
         values.add(ParcelableTrackIndex.TRACK_PREVIEWURL.ordinal(),this.preview_url);
+        values.add(ParcelableTrackIndex.TRACK_ARTISTNAME.ordinal(),this.artistName);
         dest.writeStringList(values);
     }
 

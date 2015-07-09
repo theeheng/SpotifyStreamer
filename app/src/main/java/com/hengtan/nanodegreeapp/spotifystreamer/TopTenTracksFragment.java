@@ -250,6 +250,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
                         if (result.tracks.size() > 0) {
                             for (Track track : result.tracks) {
                                 ParcelableTrack pt = new ParcelableTrack(track);
+                                pt.setArtistName(mArtist.name);
                                 mTrackList.add(pt);
                             }
 

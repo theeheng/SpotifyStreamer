@@ -3,10 +3,15 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.IBinder;
 
 import java.util.ArrayList;
@@ -21,6 +26,8 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -38,7 +45,7 @@ public class MusicService extends Service implements
     private final IBinder musicBind = new MusicBinder();
 
     //notification id
-    private static final int NOTIFY_ID=1;
+    public static final int NOTIFY_ID=1;
 
     //title of current song
     private String songTitle="";
@@ -168,16 +175,27 @@ public class MusicService extends Service implements
         PendingIntent pendInt = PendingIntent.getActivity(this, 0,
                 notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        ParcelableTrack song = songs.get(songPosn);
+
         Notification.Builder builder = new Notification.Builder(this);
 
         builder.setContentIntent(pendInt)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setTicker(songs.get(songPosn).name)
+                .setTicker(song.name)
                 .setOngoing(true)
                 .setContentTitle("Playing")
-                .setContentText(songs.get(songPosn).name);
-        Notification not = builder.build();
-        startForeground(NOTIFY_ID, not);
+                .setContentText(song.getArtistName());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            // build a complex notification, with buttons and such
+            //
+            builder = builder.setContent(getPlayerNotificationView(song.getThumbnailImage(), song.getalbumName(), song.name));
+        }
+
+        // Create Notification Manager
+        NotificationManager notificationmanager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Build Notification with Notification Manager
+        notificationmanager.notify(NOTIFY_ID, builder.build());
     }
 
     public void setSong(int songIndex){
@@ -259,8 +277,66 @@ public class MusicService extends Service implements
         }
     }
 
-    public MusicController getMusicController()
-    {
-        return mMusicController;
+    private RemoteViews getPlayerNotificationView(String trackThumbnail, String albumTitle, String trackTitle) {
+        // Using RemoteViews to bind custom layouts into Notification
+        RemoteViews notificationView = new RemoteViews(getPackageName(), R.layout.service_player_notification);
+
+        // Locate and set the Image into customnotificationtext.xml ImageViews
+        //Glide.with(this).load(trackThumbnail).fitCenter().into();
+
+        try
+        {
+            Bitmap thumbnailBitmap = Glide.with(this).load(trackThumbnail).asBitmap().into(-1, -1).get();
+            notificationView.setImageViewBitmap(R.id.notification_track_thumbnail, thumbnailBitmap);
+        }
+        catch(Exception ex)
+        {
+            notificationView.setImageViewResource(R.id.notification_track_thumbnail, R.mipmap.ic_launcher);
+        }
+
+        // Locate and set the Text into customnotificationtext.xml TextViews
+        notificationView.setTextViewText(R.id.title, albumTitle);
+        notificationView.setTextViewText(R.id.text, trackTitle);
+
+        //this is the intent that is supposed to be called when the button is clicked
+        Intent notificationPlayIntent = new Intent(this, NotificationPlayPauseButtonListener.class);
+        PendingIntent pendingNotificationPlayIntent = PendingIntent.getBroadcast(this, 0, notificationPlayIntent, 0);
+
+        Intent notificationStopIntent = new Intent(this, NotificationStopButtonListener.class);
+        PendingIntent pendingNotificationStopIntent = PendingIntent.getBroadcast(this, 0, notificationStopIntent, 0);
+        notificationView.setOnClickPendingIntent(R.id.notification_play_button, pendingNotificationPlayIntent);
+        notificationView.setOnClickPendingIntent(R.id.notification_stop_button, pendingNotificationStopIntent);
+
+        return notificationView;
+    }
+
+    public static class NotificationPlayPauseButtonListener extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("notification", "play button clicked");
+            Toast toastMessage = Toast.makeText(context,
+                    "play pause button clicked",
+                    Toast.LENGTH_LONG);
+            toastMessage.show();
+        }
+    }
+
+    public static class NotificationStopButtonListener extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("notification", "stop button clicked");
+            Toast toastMessage = Toast.makeText(context,
+                    "stop button clicked",
+                    Toast.LENGTH_LONG);
+            toastMessage.show();
+
+            // Create Notification Manager
+            NotificationManager notificationmanager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+            // Build Notification with Notification Manager
+            notificationmanager.cancel(NOTIFY_ID);
+
+            //context.stopService(new Intent(context, MusicService.class));
+
+        }
     }
 }

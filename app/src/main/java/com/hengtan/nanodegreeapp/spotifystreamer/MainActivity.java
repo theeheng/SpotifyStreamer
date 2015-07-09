@@ -1,6 +1,9 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
@@ -163,7 +166,5 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
         }
     }
-
-
 
 }
