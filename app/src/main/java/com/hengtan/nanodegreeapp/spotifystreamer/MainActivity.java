@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     public static final int RESULT_SETTINGS = 1;
 
     private boolean mTwoPane;
-
+    private boolean isPlayingNow = false;
     private TopTenTracksFragment mTopTenFragment;
     private PlayerFragment mPlayerFragment;
     private SearchArtistFragment mSearchArtistFragment;
@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         mPlayingNow = menu.findItem(R.id.action_playing_now);
 
         mPlayNowAnimationDrawable = (AnimationDrawable) mPlayingNow.getIcon();
-
-        UpdatePlayingNowActionMenuItem();
 
         return true;
     }
@@ -162,26 +160,43 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     }
 
     private void UpdatePlayingNowActionMenuItem() {
-        if(mPlayingNow != null) {
 
-            if(PlayerUtil.isMusicServiceRunning())
-            {
-                mPlayingNow.setVisible(true);
-                Resources res = getResources();
-                try {
-                  //  mPlayNowAnimationDrawable = (AnimationDrawable)Drawable.createFromXml(res, res.getXml(R.xml.ic_equalizer_white_36dp));
-                    mPlayNowAnimationDrawable.start();
-                  //  mPlayingNow.setIcon(mPlayNowAnimationDrawable);
-                } catch (Exception ex) {
-                    Log.e("Error", "Exception loading animation drawable");
-                }
-            }
-            else
-            {
-                mPlayingNow.setVisible(false);
-                mPlayNowAnimationDrawable.stop();
-            }
+        isPlayingNow = PlayerUtil.isMusicServiceRunning();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+
+        super.onWindowFocusChanged(hasFocus);
+
+        if(hasFocus && isPlayingNow && mPlayingNow != null)
+        {
+
+                    mPlayingNow.setVisible(true);
+                    Resources res = getResources();
+                    try {
+                        //  mPlayNowAnimationDrawable = (AnimationDrawable)Drawable.createFromXml(res, res.getXml(R.xml.ic_equalizer_white_36dp));
+                         mPlayNowAnimationDrawable.start();
+//
+                        /*new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mPlayNowAnimationDrawable.start();
+                            }
+                        });
+                        */
+
+                        //  mPlayingNow.setIcon(mPlayNowAnimationDrawable);
+                    } catch (Exception ex) {
+                        Log.e("Error", "Exception loading animation drawable");
+                    }
+        }
+        else
+        {
+                    mPlayingNow.setVisible(false);
+                    mPlayNowAnimationDrawable.stop();
         }
     }
+
 
 }
