@@ -12,33 +12,4 @@ import java.util.List;
 public class PlayerUtil {
     private static String LOG_TAG = PlayerUtil.class.getName();
 
-    public static boolean isMusicServiceRunning(){
-        final ActivityManager activityManager = (ActivityManager) com.hengtan.nanodegreeapp.spotifystreamer.Application.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-        final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
-        final String musicServiceName = MusicService.class.getName();
-
-        for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
-            if (runningServiceInfo.service.getClassName().equals(musicServiceName)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isLastActivity(String activityClassName){
-        final ActivityManager activityManager = (ActivityManager) com.hengtan.nanodegreeapp.spotifystreamer.Application.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(10);
-
-        if(taskList.get(0).numActivities == 1 &&
-                taskList.get(0).topActivity.getClassName().equals(activityClassName)) {
-
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
 }

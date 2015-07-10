@@ -182,6 +182,7 @@ public class MusicService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         //start playback
+        Application.setIsPlayingNow(true);
         player.start();
 
         if(mMusicController != null) {
@@ -251,22 +252,30 @@ public class MusicService extends Service implements
     }
 
     public boolean isPng(){
+
+        boolean playing = false;
+
         try {
-            return player.isPlaying();
+            playing = player.isPlaying();
+            Application.setIsPlayingNow(playing);
+            return playing;
         }
         catch (Exception ex)
         {
-            return false;
+            Application.setIsPlayingNow(playing);
+            return playing;
         }
     }
 
     public void pausePlayer(){
+        Application.setIsPlayingNow(false);
         player.pause();
         BuildNotification(R.mipmap.uamp_ic_play_arrow_white_48dp);
     }
 
     public void stopPlayer()
     {
+        Application.setIsPlayingNow(false);
         player.stop();
         player.release();
         stopSelf(NOTIFY_ID);
@@ -277,6 +286,7 @@ public class MusicService extends Service implements
     }
 
     public void go(){
+        Application.setIsPlayingNow(true);
         player.start();
         BuildNotification(R.mipmap.uamp_ic_pause_white_48dp);
     }

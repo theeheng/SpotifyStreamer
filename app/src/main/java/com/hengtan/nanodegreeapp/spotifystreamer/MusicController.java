@@ -26,7 +26,7 @@ public class MusicController extends MediaController {
 		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
 			((Activity) mContext).finish();
 
-			if(!mTwoPane && PlayerUtil.isLastActivity(PlayerActivity.class.getName()))
+			if(!mTwoPane && Application.isLastActivity(PlayerActivity.class.getName()))
 			{
 				Intent intent = new Intent(mContext, MainActivity.class);
 				mContext.startActivity(intent);

@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
     private void UpdatePlayingNowFlag() {
 
-        isPlayingNow = PlayerUtil.isMusicServiceRunning();
+        isPlayingNow = Application.getIsPlayingNow();
     }
 
     @Override
