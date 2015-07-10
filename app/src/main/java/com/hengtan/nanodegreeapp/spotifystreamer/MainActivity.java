@@ -154,12 +154,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     @Override
     public void onResume() {
 
-        UpdatePlayingNowActionMenuItem();
+        UpdatePlayingNowFlag();
 
         super.onResume();
     }
 
-    private void UpdatePlayingNowActionMenuItem() {
+    private void UpdatePlayingNowFlag() {
 
         isPlayingNow = PlayerUtil.isMusicServiceRunning();
     }
@@ -171,30 +171,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
         if(hasFocus && isPlayingNow && mPlayingNow != null)
         {
-
-                    mPlayingNow.setVisible(true);
-                    Resources res = getResources();
-                    try {
-                        //  mPlayNowAnimationDrawable = (AnimationDrawable)Drawable.createFromXml(res, res.getXml(R.xml.ic_equalizer_white_36dp));
-                         mPlayNowAnimationDrawable.start();
-//
-                        /*new Handler().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mPlayNowAnimationDrawable.start();
-                            }
-                        });
-                        */
-
-                        //  mPlayingNow.setIcon(mPlayNowAnimationDrawable);
-                    } catch (Exception ex) {
-                        Log.e("Error", "Exception loading animation drawable");
-                    }
+            mPlayingNow.setVisible(true);
+            mPlayNowAnimationDrawable.start();
         }
         else
         {
-                    mPlayingNow.setVisible(false);
-                    mPlayNowAnimationDrawable.stop();
+            mPlayingNow.setVisible(false);
+            mPlayNowAnimationDrawable.stop();
         }
     }
 
