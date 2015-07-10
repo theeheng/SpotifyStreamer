@@ -25,8 +25,9 @@ limitations under the License.
         android:id="@+id/background_image"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/background_image_str" />
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/background_image_str"
+        android:paddingBottom="@dimen/player_track_image_padding_bottom"/>
 
     <RelativeLayout
         android:id="@+id/track_description"

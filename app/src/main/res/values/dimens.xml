@@ -12,7 +12,8 @@
     <!-- Margins for full screen activity-->
     <dimen name="text_view_margin">16dp</dimen>
     <dimen name="end_text_margin">16dp</dimen>
-    <dimen name="player_track_description_padding_bottom">100dp</dimen>
+    <dimen name="player_track_description_padding_bottom">90dp</dimen>
+    <dimen name="player_track_image_padding_bottom">125dp</dimen>
     <dimen name="popup_width">600dp</dimen>
     <dimen name="popup_height">1200dp</dimen>
 </resources>

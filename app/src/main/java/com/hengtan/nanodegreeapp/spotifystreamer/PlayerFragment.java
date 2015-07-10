@@ -292,7 +292,15 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
     //set the controller up
     private void setController(){
-        controller = new MusicController(contex, mTwoPane);
+
+        if(mTwoPane && getDialog() != null)
+        {
+            controller = new MusicController(getDialog().getContext() , mTwoPane);
+        }
+        else {
+
+            controller = new MusicController(getActivity(), mTwoPane);
+        }
         //set previous and next button listeners
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
