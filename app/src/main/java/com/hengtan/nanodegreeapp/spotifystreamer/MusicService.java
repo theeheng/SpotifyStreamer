@@ -41,8 +41,10 @@ public class MusicService extends Service implements
 
     //media player
     private MediaPlayer player;
+
     //song list
     private ArrayList<ParcelableTrack> songs;
+
     //current position
     private int songPosn;
 
@@ -56,6 +58,7 @@ public class MusicService extends Service implements
 
     //shuffle flag and random
     private boolean shuffle=false;
+
     private Random rand;
 
     private ImageView mPlayerFragmentBackgroundImage;
@@ -85,7 +88,6 @@ public class MusicService extends Service implements
 
     @Override
     public void onCreate(){
-        //create the service
         //create the service
         super.onCreate();
         //initialize position
@@ -144,14 +146,12 @@ public class MusicService extends Service implements
 
         //get song
         ParcelableTrack playSong = songs.get(songPosn);
-        //get id
-        //long currSong = playSong.getID();
+
         //set uri
         Uri trackUri = Uri.parse(playSong.preview_url);
 
         try{
             player.setDataSource(getApplicationContext(), trackUri);
-
             UpdatePlayerBackgroundImage(playSong);
             UpdatePlayerTextDescription(playSong);
         }
