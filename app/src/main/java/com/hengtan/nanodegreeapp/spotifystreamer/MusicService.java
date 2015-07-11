@@ -3,24 +3,15 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.IBinder;
-
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Handler;
-
-import android.content.ContentUris;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
@@ -29,8 +20,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -38,6 +27,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
+
+    private final String LOG_TAG = MusicService.class.getSimpleName();
 
     //media player
     private MediaPlayer player;
@@ -59,6 +50,8 @@ public class MusicService extends Service implements
     //shuffle flag and random
     private boolean shuffle=false;
 
+    private boolean mTwoPane = false;
+
     private Random rand;
 
     private ImageView mPlayerFragmentBackgroundImage;
@@ -72,6 +65,12 @@ public class MusicService extends Service implements
     private TextView mAlbumNameTextView;
 
     private TextView mArtistTextView;
+
+    public class MusicBinder extends Binder {
+        MusicService getService() {
+            return MusicService.this;
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -100,12 +99,15 @@ public class MusicService extends Service implements
 
     public void initMusicPlayer(){
         //set player properties
-        player.setWakeMode(getApplicationContext(),
-                PowerManager.PARTIAL_WAKE_LOCK);
+        player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
+    }
+
+    public void setTwoPane(boolean twoPane){
+        this.mTwoPane=twoPane;
     }
 
     public void setSongs(ArrayList<ParcelableTrack> theSongs){
@@ -132,12 +134,6 @@ public class MusicService extends Service implements
         this.mTrackNameTextView = line1;
         this.mAlbumNameTextView = line2;
         this.mArtistTextView = line3;
-    }
-
-    public class MusicBinder extends Binder {
-        MusicService getService() {
-            return MusicService.this;
-        }
     }
 
     public void playSong(){
@@ -186,10 +182,24 @@ public class MusicService extends Service implements
         player.start();
 
         if(mMusicController != null) {
-            mMusicController.show(0);
+
+            try {
+
+                mMusicController.show(0);
+
+            }
+            catch (Exception ex)
+            {
+                Log.v(LOG_TAG, "Error displaying media controller : " + ex.getMessage());
+            }
         }
 
        BuildNotification(R.mipmap.uamp_ic_pause_white_48dp);
+    }
+
+    @Override
+    public void onDestroy() {
+        //stopForeground(true);
     }
 
     public void BuildNotification(final int playPauseControlResourceId) {
@@ -199,6 +209,12 @@ public class MusicService extends Service implements
 
         //notification
         Intent notIntent = new Intent(this, PlayerActivity.class);
+
+        if(mTwoPane)
+        {
+            notIntent = new Intent(this, MainActivity.class);
+
+        }
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendInt = PendingIntent.getActivity(this, 0,
                 notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -237,7 +253,6 @@ public class MusicService extends Service implements
             startForeground(NOTIFY_ID, playerNotification);
         }
     }
-
 
     public void setSong(int songIndex){
         songPosn=songIndex;
@@ -278,7 +293,7 @@ public class MusicService extends Service implements
         Application.setIsPlayingNow(false);
         player.stop();
         player.release();
-        stopSelf(NOTIFY_ID);
+        stopForeground(true);
     }
 
     public void seek(int posn){
@@ -312,11 +327,6 @@ public class MusicService extends Service implements
             if(songPosn>=songs.size()) songPosn=0;
         }
         playSong();
-    }
-
-    @Override
-    public void onDestroy() {
-        //stopForeground(true);
     }
 
     //toggle shuffle

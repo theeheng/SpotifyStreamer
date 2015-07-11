@@ -1,49 +1,23 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
-
-import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.media.MediaMetadata;
-import android.media.browse.MediaBrowser;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
-import android.media.session.PlaybackState;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
-
-
-
 import java.util.ArrayList;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
-
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-
 import android.widget.MediaController.MediaPlayerControl;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class PlayerFragment extends DialogFragment implements MediaPlayerControl {
 
     private boolean mTwoPane = false;
@@ -59,40 +33,40 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     @InjectView(R.id.line3)
     protected TextView mLine3;
 
-    protected Drawable mPauseDrawable;
-    protected Drawable mPlayDrawable;
-
     @InjectView(R.id.background_image)
     protected ImageView mBackgroundImage;
 
+
+    protected Drawable mPauseDrawable;
+    protected Drawable mPlayDrawable;
     private ArrayList<ParcelableTrack> mTrackList;
     private int mTrackIndex;
     private String TRACK_KEY = "track_list";
     private View fragmentView;
+    private MusicService musicSrv;
+    private Intent playIntent;
+    private boolean musicBound=false;
+    private MusicController controller;
+
+    //activity and playback pause flags
+    private boolean playbackPaused=false;
 
     public void setTwoPane(boolean twoPane) {
         this.mTwoPane = twoPane;
     }
-
-    private MusicService musicSrv;
-    private Intent playIntent;
-    private boolean musicBound=false;
-
-    private MusicController controller;
-
-    //activity and playback pause flags
-    private boolean paused=false, playbackPaused=false;
-
 
     //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+
             //get service
             musicSrv = binder.getService();
-            //pass list
+
+            musicSrv.setTwoPane(mTwoPane);
 
             if(mBackgroundImage != null)
             {
@@ -129,6 +103,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            musicSrv.setMusicController(null);
             musicBound = false;
         }
     };
@@ -140,7 +115,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
         if(playIntent==null){
             playIntent = new Intent(getActivity(), MusicService.class);
-            getActivity().bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            getActivity().bindService(playIntent, musicConnection, Context.BIND_ADJUST_WITH_ACTIVITY);
             getActivity().startService(playIntent);
         }
 
@@ -152,7 +127,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
         super.onStart();
 
         if(mTwoPane) {
-            // safety check
+
             if (getDialog() == null)
                 return;
 
@@ -166,22 +141,27 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
     @Override
     public void onDestroy() {
+
+        if(controller.isShowing()){
+            controller.hide();
+        }
+
         //getActivity().stopService(playIntent);
         //musicSrv=null;
-        //getActivity().unbindService(musicConnection);
+        getActivity().unbindService(musicConnection);
+
         super.onDestroy();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.fragment_player, container, false);
         ButterKnife.inject(this, fragmentView);
 
         mPauseDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_pause_white_48dp);
         mPlayDrawable = getActivity().getResources().getDrawable(R.mipmap.uamp_ic_play_arrow_white_48dp);
-
 
         if (savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY)) {
             mTrackList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
@@ -195,7 +175,6 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
                 mTrackList = arguments.getParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE);
                 mTrackIndex = arguments.getInt(PlayerFragment.TRACKINDEX);
             }
-
         }
 
         //setup controller
@@ -266,30 +245,6 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
         musicSrv.go();
     }
 
-    /*@Override
-    public void onPause(){
-        super.onPause();
-        paused=true;
-    }
-
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        if(paused){
-            setController();
-            paused=false;
-        }
-    }
-*/
-
-    /*@Override
-    public void onStop() {
-        controller.hide();
-        super.onStop();
-    }*/
-
-
     //set the controller up
     private void setController(){
 
@@ -301,6 +256,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
             controller = new MusicController(getActivity(), mTwoPane);
         }
+
         //set previous and next button listeners
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
@@ -313,7 +269,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
                 playPrev();
             }
         });
-        //set and show
+
         controller.setMediaPlayer(this);
         controller.setAnchorView(mBackgroundImage);
         controller.setEnabled(true);

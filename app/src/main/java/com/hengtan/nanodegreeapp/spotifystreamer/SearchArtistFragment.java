@@ -13,9 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -25,9 +23,9 @@ import kaaes.spotify.webapi.android.models.ArtistsPager;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-
-
 public class SearchArtistFragment extends Fragment {
+
+    private final String LOG_TAG = SearchArtistFragment.class.getSimpleName();
 
     private String ARTIST_KEY = "artist_list";
     private int mScrollPosition = 0;
@@ -51,8 +49,7 @@ public class SearchArtistFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_search_artist, container, false);
@@ -70,25 +67,15 @@ public class SearchArtistFragment extends Fragment {
         artistRecyclerView.scrollToPosition(mScrollPosition);
 
         artistSearchView.setIconifiedByDefault(false);
-        //artistSearchView.setSubmitButtonEnabled(true);
 
         int magId = getResources().getIdentifier("android:id/search_mag_icon", null, null);
         ImageView magImage = (ImageView) artistSearchView.findViewById(magId);
         magImage.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
 
-        artistSearchView.setOnSearchClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Log.d("Search click ", "Search click");
-                //SearchArtistFragment.this.onSearchArtistBtnClick((View) view);
-            }
-        });
 
         artistSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d("Search text submit", query);
                 SearchArtistFragment.this.onSearchArtistBtnClick(null);
                 return false;
             }
@@ -120,7 +107,7 @@ public class SearchArtistFragment extends Fragment {
 
         // Most (but not all) of the Spotify Web API endpoints require authorisation.
         // If you know you'll only use the ones that don't require authorisation you can skip this step
-       // api.setAccessToken("myAccessToken");
+        // api.setAccessToken("myAccessToken");
 
         SpotifyService spotify = api.getService();
 
@@ -181,7 +168,8 @@ public class SearchArtistFragment extends Fragment {
 
     public void ShowErrorMessage(String errorMessage)
     {
-        String tmpMessage  = getActivity().getResources().getString(R.string.unable_to_connect_to_spotify)+ " : " + errorMessage;
+        String tmpMessage  = getActivity().getResources().getString(R.string.unable_to_connect_to_spotify);
+        Log.v(LOG_TAG,errorMessage);
         DisplayToastMessage(tmpMessage);
     }
 

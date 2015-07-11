@@ -35,6 +35,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private AdapterType mType;
     private LayoutInflater mInflater;
     private View mHeaderView;
+    private Context mContext;
 
     OnItemClickListener mItemClickListener;
 
@@ -56,6 +57,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mInflater = LayoutInflater.from(context);
         mHeaderView = headerView;
         mType = type;
+        mContext = context;
     }
 
     public void setArtists(ArrayList<ParcelableArtist> artists)
@@ -80,7 +82,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (viewType == VIEW_TYPE_HEADER && mHeaderView != null) {
             return new HeaderViewHolder(mHeaderView);
         } else {
-            return new ItemViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_layout, viewGroup, false));
+            return new ItemViewHolder(LayoutInflater.from(mContext).inflate(R.layout.list_layout, viewGroup, false));
         }
 
     }
@@ -104,54 +106,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    private void DisplayTopTenList(ItemViewHolder vh, int position) {
-
-        ParcelableTrack track = mTracks.get(position);
-
-        if(track != null)
-        {
-            // Get element from your dataset at this position and replace the contents of the view
-            // with that element
-            vh.getTopTextView().setText(track.name);
-
-            String albumName = track.getalbumName();
-
-            if(albumName != null)
-            {
-                vh.getBottomTextView().setVisibility(View.VISIBLE);
-                vh.getBottomTextView().setText(albumName);
-            }
-
-            if(track.getThumbnailImage() != null && (!track.getThumbnailImage().equals(""))) {
-                Glide.with(vh.getImageView().getContext()).load(track.getThumbnailImage()).into(vh.getImageView());
-            }
-            else
-            {
-                Glide.with(vh.getImageView().getContext()).load(R.mipmap.ic_default_art).into(vh.getImageView());
-            }
-        }
-    }
-
-    private void DisplayArtistList(ItemViewHolder vh, int position) {
-        ParcelableArtist artist = mArtists.get(position);
-
-        if(artist != null)
-        {
-            // Get element from your dataset at this position and replace the contents of the view
-            // with that element
-            vh.getTopTextView().setText(artist.name);
-
-
-            if(artist.getThumbnailImage() != null && (!artist.getThumbnailImage().equals(""))) {
-                Glide.with(vh.getImageView().getContext()).load(artist.getThumbnailImage()).into(vh.getImageView());
-            }
-            else
-            {
-                Glide.with(vh.getImageView().getContext()).load(R.mipmap.ic_default_art).into(vh.getImageView());
-            }
-        }
-    }
-
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
@@ -171,6 +125,54 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return itemCountSize;
         } else {
             return itemCountSize + 1;
+        }
+    }
+
+    private void DisplayTopTenList(ItemViewHolder vh, int position) {
+
+        ParcelableTrack track = mTracks.get(position);
+
+        if(track != null)
+        {
+            // Get element from your dataset at this position and replace the contents of the view
+            // with that element
+            vh.getTopTextView().setText(track.name);
+
+            String albumName = track.getalbumName();
+
+            if(albumName != null)
+            {
+                vh.getBottomTextView().setVisibility(View.VISIBLE);
+                vh.getBottomTextView().setText(albumName);
+            }
+
+            if(track.getThumbnailImage() != null && (!track.getThumbnailImage().equals(""))) {
+                Glide.with(mContext).load(track.getThumbnailImage()).into(vh.getImageView());
+            }
+            else
+            {
+                Glide.with(mContext).load(R.mipmap.ic_default_art).into(vh.getImageView());
+            }
+        }
+    }
+
+    private void DisplayArtistList(ItemViewHolder vh, int position) {
+        ParcelableArtist artist = mArtists.get(position);
+
+        if(artist != null)
+        {
+            // Get element from your dataset at this position and replace the contents of the view
+            // with that element
+            vh.getTopTextView().setText(artist.name);
+
+
+            if(artist.getThumbnailImage() != null && (!artist.getThumbnailImage().equals(""))) {
+                Glide.with(mContext).load(artist.getThumbnailImage()).into(vh.getImageView());
+            }
+            else
+            {
+                Glide.with(mContext).load(R.mipmap.ic_default_art).into(vh.getImageView());
+            }
         }
     }
 

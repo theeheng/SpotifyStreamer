@@ -39,6 +39,8 @@ public class SettingsActivity extends PreferenceActivity {
      * as a master/detail two-pane view on tablets. When true, a single pane is
      * shown on tablets.
      */
+
+    public static final String COUNTRY_PREFERENCE_ID = "country_code_list";
     private static final boolean ALWAYS_SIMPLE_PREFS = true;
 
 
@@ -63,9 +65,6 @@ public class SettingsActivity extends PreferenceActivity {
         // use the older PreferenceActivity APIs.
 
         // Add 'general' preferences, and a corresponding header.
-        //PreferenceCategory generalHeader = new PreferenceCategory(this);
-        //generalHeader.setTitle(R.string.pref_header_general);
-        //getPreferenceScreen().addPreference(generalHeader);
         addPreferencesFromResource(R.xml.pref_general);
 
         // Add 'notifications' preferences, and a corresponding header.
@@ -215,7 +214,7 @@ public class SettingsActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("country_code_list"));
+            bindPreferenceSummaryToValue(findPreference(COUNTRY_PREFERENCE_ID));
         }
     }
 

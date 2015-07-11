@@ -1,13 +1,7 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
-import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
