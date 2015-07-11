@@ -340,7 +340,17 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
     private void UpdateArtistImageViewAndTitle() {
 
         if(mArtist != null) {
-            Glide.with(getActivity()).load(mArtist.getThumbnailImage()).fitCenter().into(mImageView);
+
+            String thumbnailUrl = mArtist.getThumbnailImage();
+
+            if(thumbnailUrl != null) {
+                Glide.with(getActivity()).load(thumbnailUrl).fitCenter().into(mImageView);
+            }
+            else
+            {
+                Glide.with(getActivity()).load(R.mipmap.example).fitCenter().into(mImageView);
+            }
+            
             mArtistTitleView.setText(mArtist.name);
             mArtistTitleView.measure(0, 0);
             mArtistTitleMeasuredWidth = mArtistTitleView.getMeasuredWidth();
