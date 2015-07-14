@@ -45,16 +45,37 @@ public class Application extends android.app.Application {
 
     public static boolean isLastActivity(String activityClassName){
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(10);
+        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(20);
+        String packageName = context.getPackageName();
 
-        if(taskList.get(0).numActivities == 1 &&
-                taskList.get(0).topActivity.getClassName().equals(activityClassName)) {
+        for(ActivityManager.RunningTaskInfo taskInfo : taskList) {
 
-            return true;
+            if(taskInfo.baseActivity.getPackageName().equals(packageName))
+            {
+                if (taskInfo.numActivities == 1 && taskInfo.topActivity.getClassName().equals(activityClassName)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
-        else
-        {
-            return false;
+
+        return false;
+    }
+
+    public static boolean isAllActivityClosed()
+    {
+        final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(20);
+        String packageName = context.getPackageName();
+
+        for(ActivityManager.RunningTaskInfo taskInfo : taskList) {
+            if(taskInfo.baseActivity.getPackageName().equals(packageName))
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 }

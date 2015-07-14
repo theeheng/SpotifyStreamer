@@ -39,7 +39,8 @@
 
         <service android:name="com.hengtan.nanodegreeapp.spotifystreamer.MusicService" />
         <receiver android:name="NotificationPlayPauseButtonListener" />
-        <receiver android:name="NotificationStopButtonListener" />
+        <receiver android:name="NotificationPrevButtonListener" />
+        <receiver android:name="NotificationNextButtonListener" />
     </application>
 
 </manifest>

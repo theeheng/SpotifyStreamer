@@ -370,10 +370,16 @@ public class MusicService extends Service implements
         Intent notificationPlayIntent = new Intent(this, NotificationPlayPauseButtonListener.class);
         PendingIntent pendingNotificationPlayIntent = PendingIntent.getBroadcast(this, 0, notificationPlayIntent, 0);
 
-        Intent notificationStopIntent = new Intent(this, NotificationStopButtonListener.class);
-        PendingIntent pendingNotificationStopIntent = PendingIntent.getBroadcast(this, 0, notificationStopIntent, 0);
+        Intent notificationPrevIntent = new Intent(this, NotificationPrevButtonListener.class);
+        PendingIntent pendingNotificationPrevIntent = PendingIntent.getBroadcast(this, 0, notificationPrevIntent, 0);
+
+        Intent notificationNextIntent = new Intent(this, NotificationNextButtonListener.class);
+        PendingIntent pendingNotificationNextIntent = PendingIntent.getBroadcast(this, 0, notificationNextIntent, 0);
+
+
         notificationView.setOnClickPendingIntent(R.id.notification_play_button, pendingNotificationPlayIntent);
-        notificationView.setOnClickPendingIntent(R.id.notification_stop_button, pendingNotificationStopIntent);
+        notificationView.setOnClickPendingIntent(R.id.notification_prev_button, pendingNotificationPrevIntent);
+        notificationView.setOnClickPendingIntent(R.id.notification_next_button, pendingNotificationNextIntent);
 
         return notificationView;
     }

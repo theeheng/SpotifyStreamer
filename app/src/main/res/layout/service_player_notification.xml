@@ -52,6 +52,14 @@
        >
 
         <ImageView
+            android:id="@+id/notification_prev_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:src="@mipmap/ic_skip_previous_white_48dp"
+            android:contentDescription="@string/play_pause" />
+
+        <ImageView
             android:id="@+id/notification_play_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,11 +68,11 @@
             android:contentDescription="@string/play_pause" />
 
         <ImageView
-            android:id="@+id/notification_stop_button"
+            android:id="@+id/notification_next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:src="@mipmap/uamp_ic_stop_white_48dp"
+            android:src="@mipmap/ic_skip_next_white_48dp"
             android:contentDescription="@string/play_pause" />
     </LinearLayout>
 
