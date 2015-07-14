@@ -16,6 +16,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
+
 import android.widget.MediaController.MediaPlayerControl;
 
 public class PlayerFragment extends DialogFragment implements MediaPlayerControl {
@@ -36,6 +38,8 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     @InjectView(R.id.background_image)
     protected ImageView mBackgroundImage;
 
+    @InjectView(R.id.share_icon)
+    protected ImageView mShareImage;
 
     protected Drawable mPauseDrawable;
     protected Drawable mPlayDrawable;
@@ -304,4 +308,17 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
         }
     }
 
+    @OnClick(R.id.share_icon)
+    public void OnShareIconClicked()
+    {
+        String trackUrl = Application.getCurrentTraclUrl();
+
+        if(trackUrl != null && (!trackUrl.isEmpty())) {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, trackUrl);
+            sendIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+        }
+    }
 }

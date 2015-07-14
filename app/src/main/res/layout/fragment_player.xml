@@ -22,11 +22,21 @@ limitations under the License.
     android:fitsSystemWindows="true">
 
     <ImageView
+        android:id="@+id/share_icon"
+        android:src="@android:drawable/ic_menu_share"
+        android:layout_alignParentRight="true"
+        android:contentDescription="dsfsdfadsf"
+        android:layout_width="@android:dimen/app_icon_size"
+        android:layout_height="@android:dimen/app_icon_size"
+        android:paddingRight="@dimen/margin_standard"
+        />
+    <ImageView
         android:id="@+id/background_image"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scaleType="fitCenter"
         android:contentDescription="@string/background_image_str"
+        android:layout_below="@+id/share_icon"
         android:paddingBottom="@dimen/player_track_image_padding_bottom"/>
 
     <RelativeLayout
@@ -82,7 +92,6 @@ limitations under the License.
             android:textColor="@color/fullscreen_secondary_line_color"
             android:paddingBottom="@dimen/player_track_description_padding_bottom"
             />
-
 
     </RelativeLayout>
 </RelativeLayout>

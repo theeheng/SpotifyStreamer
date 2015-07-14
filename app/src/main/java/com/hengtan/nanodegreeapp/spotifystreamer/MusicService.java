@@ -150,6 +150,7 @@ public class MusicService extends Service implements
             player.setDataSource(getApplicationContext(), trackUri);
             UpdatePlayerBackgroundImage(playSong);
             UpdatePlayerTextDescription(playSong);
+            Application.setCurrentTraclUrl(playSong.preview_url);
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);

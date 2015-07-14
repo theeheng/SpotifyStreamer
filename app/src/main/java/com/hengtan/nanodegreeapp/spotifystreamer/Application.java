@@ -11,7 +11,7 @@ public class Application extends android.app.Application {
 
     private static Context context;
     public static boolean isPlayingNow;
-
+    public static String currentTrackUrl;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,6 +27,16 @@ public class Application extends android.app.Application {
     public static void setIsPlayingNow(boolean playingNow)
     {
         isPlayingNow = playingNow;
+    }
+
+    public static String getCurrentTraclUrl()
+    {
+        return currentTrackUrl;
+    }
+
+    public static void setCurrentTraclUrl(String trackUrl)
+    {
+        currentTrackUrl = trackUrl;
     }
 
     public static Context getContext(){

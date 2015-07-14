@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+
 import java.util.ArrayList;
 
 
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     private TopTenTracksFragment mTopTenFragment;
     private PlayerFragment mPlayerFragment;
     private MenuItem mPlayingNow;
+    private MenuItem mShareTrack;
     private AnimationDrawable mPlayNowAnimationDrawable;
 
     @Override
@@ -60,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         mPlayingNow = menu.findItem(R.id.action_playing_now);
-
+        mShareTrack = menu.findItem(R.id.menu_item_share);
         mPlayNowAnimationDrawable = (AnimationDrawable) mPlayingNow.getIcon();
 
         return true;
@@ -94,6 +97,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             return true;
         }
 
+        if (id == R.id.menu_item_share) {
+
+            String trackUrl = Application.getCurrentTraclUrl();
+
+            if(trackUrl != null && (!trackUrl.isEmpty()))
+            {
+                ShareTrack(trackUrl);
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -157,14 +169,25 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         if(hasFocus && isPlayingNow && mPlayingNow != null)
         {
             mPlayingNow.setVisible(true);
+            mShareTrack.setVisible(true);
             mPlayNowAnimationDrawable.start();
         }
         else
         {
             mPlayingNow.setVisible(false);
+            mShareTrack.setVisible(false);
             mPlayNowAnimationDrawable.stop();
         }
     }
 
+    // Call to update the share intent
+    private void ShareTrack(String currentTrackUrl) {
+
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, currentTrackUrl);
+            sendIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+    }
 
 }

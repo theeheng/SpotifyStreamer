@@ -19,6 +19,7 @@
     <string name="skip_next">skip to next</string>
     <string name="skip_prev">skip to previous</string>
 
+    <string name="send_to">Share Track To...</string>
     <!-- Country Name in English -->
     <string name="country_AF">Afghanistan</string>
     <string name="country_AX">Åland Islands</string>
