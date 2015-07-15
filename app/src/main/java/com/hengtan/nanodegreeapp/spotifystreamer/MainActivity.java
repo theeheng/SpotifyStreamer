@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -75,37 +76,40 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent i = new Intent(this, SettingsActivity.class);
-            startActivityForResult(i, RESULT_SETTINGS);
-            return true;
+        switch (id)
+        {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            case R.id.action_settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivityForResult(i, RESULT_SETTINGS);
+                return true;
+            case R.id.action_playing_now :
+                if(!mTwoPane) {
+                    Intent intent = new Intent(this, PlayerActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    Intent intent = new Intent(this, PlayerDialogActivity.class);
+                    startActivity(intent);
+                }
+
+                return true;
+
+            case R.id.menu_item_share :
+
+                String trackUrl = Application.getCurrentTraclUrl();
+
+                if(trackUrl != null && (!trackUrl.isEmpty()))
+                {
+                    ShareTrack(trackUrl);
+                }
+
+                return true;
         }
 
-        if (id == R.id.action_playing_now) {
-
-            if(!mTwoPane) {
-                Intent intent = new Intent(this, PlayerActivity.class);
-                startActivity(intent);
-            }
-            else
-            {
-                Intent intent = new Intent(this, PlayerDialogActivity.class);
-                startActivity(intent);
-            }
-
-            return true;
-        }
-
-        if (id == R.id.menu_item_share) {
-
-            String trackUrl = Application.getCurrentTraclUrl();
-
-            if(trackUrl != null && (!trackUrl.isEmpty()))
-            {
-                ShareTrack(trackUrl);
-            }
-        }
         return super.onOptionsItemSelected(item);
     }
 
