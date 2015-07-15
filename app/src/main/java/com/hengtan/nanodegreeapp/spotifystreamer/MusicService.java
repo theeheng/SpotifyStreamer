@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -222,7 +223,7 @@ public class MusicService extends Service implements
     public void BuildNotification(final int playPauseControlResourceId) {
 
         final ParcelableTrack song = songs.get(songPosn);
-        final Notification.Builder builder = new Notification.Builder(this);
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
         //notification
         Intent notIntent = new Intent(this, PlayerActivity.class);
@@ -242,6 +243,7 @@ public class MusicService extends Service implements
                 .setOngoing(true)
                 .setContentTitle("Playing")
                 .setContentText(song.getArtistName());
+                //.setStyle(new NotificationCompat.BigTextStyle());
 
         String thumbnailImage = song.getThumbnailImage();
 
@@ -257,16 +259,21 @@ public class MusicService extends Service implements
                             // referencing to the dimension resource XML just created
                             int bitmapWidth = Math.round(getResources().getDimension(R.dimen.notification_large_icon_width));
                             int bitmapHeight = Math.round(getResources().getDimension(R.dimen.notification_large_icon_height));
+                            builder.setLargeIcon(resource);
 
-                            playerNotification = builder.setContent(getPlayerNotificationView(Bitmap.createScaledBitmap(resource, bitmapWidth , bitmapHeight, false), song.getalbumName(), song.name, playPauseControlResourceId)).build();
+                            playerNotification = builder.build();
+                            playerNotification.bigContentView = getPlayerNotificationView(Bitmap.createScaledBitmap(resource, bitmapWidth, bitmapHeight, false), song.getalbumName(), song.name, playPauseControlResourceId);
+                            playerNotification.flags |= NotificationCompat.FLAG_ONGOING_EVENT | NotificationCompat.FLAG_NO_CLEAR;
+                            playerNotification.priority= Notification.PRIORITY_HIGH;
                             startForeground(NOTIFY_ID, playerNotification);
-
                         }
                     });
         }
         else
         {
-            playerNotification = builder.setContent(getPlayerNotificationView(null, song.getalbumName(), song.name, playPauseControlResourceId)).build();
+            playerNotification = builder.build();
+            playerNotification.bigContentView = getPlayerNotificationView(null, song.getalbumName(), song.name, playPauseControlResourceId);
+            playerNotification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
             startForeground(NOTIFY_ID, playerNotification);
         }
     }
@@ -379,8 +386,8 @@ public class MusicService extends Service implements
         notificationView.setImageViewResource(R.id.notification_play_button, playPauseControlResourceId);
 
         // Locate and set the Text into customnotificationtext.xml TextViews
-        notificationView.setTextViewText(R.id.notification_album_title, TruncateNotificationText(albumTitle));
-        notificationView.setTextViewText(R.id.notification_track_title, TruncateNotificationText(trackTitle));
+        notificationView.setTextViewText(R.id.notification_album_title, albumTitle);
+        notificationView.setTextViewText(R.id.notification_track_title, trackTitle);
 
         //this is the intent that is supposed to be called when the button is clicked
         Intent notificationPlayIntent = new Intent(this, NotificationPlayPauseButtonListener.class);
@@ -398,20 +405,6 @@ public class MusicService extends Service implements
         notificationView.setOnClickPendingIntent(R.id.notification_next_button, pendingNotificationNextIntent);
 
         return notificationView;
-    }
-
-    private String TruncateNotificationText(String originalText)
-    {
-        String truncatedString = "...";
-
-        if(originalText.length() > 20)
-        {
-            return originalText.substring(0, 19).concat(truncatedString);
-        }
-        else
-        {
-            return originalText;
-        }
     }
 
     private void UpdatePlayerBackgroundImage(ParcelableTrack playSong)

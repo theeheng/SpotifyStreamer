@@ -33,10 +33,10 @@ public class PlayerDialogActivity extends Activity {
 
 
         WindowManager.LayoutParams params = getWindow().getAttributes();
-        params.x = -20;
-        params.height = 1500;
-        params.width = 1000;
-        params.y = -10;
+        params.x = ((int)getResources().getDimension(R.dimen.player_dialog_x)) * -1;
+        params.height = (int) getResources().getDimension(R.dimen.player_dialog_height);
+        params.width = (int) getResources().getDimension(R.dimen.player_dialog_width);
+        params.y = ((int) getResources().getDimension(R.dimen.player_dialog_y)) * -1;
 
         this.getWindow().setAttributes(params);
 

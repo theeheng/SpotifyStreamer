@@ -9,15 +9,16 @@
     <ImageView
         android:id="@+id/notification_track_thumbnail"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:contentDescription="@string/app_name"
+        android:layout_alignParentTop="true"
         android:src="@mipmap/ic_notification" />
 
 
     <LinearLayout
         android:id="@+id/notification_text"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="false"
         android:layout_margin="8dp"
         android:layout_toRightOf="@+id/notification_track_thumbnail"
@@ -30,6 +31,7 @@
             android:layout_height="wrap_content"
             android:text="@string/notification_album_title"
             android:textStyle="bold"
+            android:ellipsize="end"
             />
 
         <TextView
@@ -37,18 +39,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notification_track_title"
+            android:ellipsize="end"
             />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/notification_control"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="false"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_margin="8dp"
-        android:layout_toRightOf="@+id/notification_text"
-        android:gravity="center_vertical"
+        android:layout_below="@+id/notification_text"
         android:orientation="horizontal"
-        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
        >
 
         <ImageView

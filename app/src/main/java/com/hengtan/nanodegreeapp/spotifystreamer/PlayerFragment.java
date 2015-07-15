@@ -138,7 +138,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
     {
         super.onStart();
 
-        if(mTwoPane) {
+        /*if(mTwoPane) {
 
             if (getDialog() == null)
                 return;
@@ -147,7 +147,8 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
             int dialogHeight = getResources().getDimensionPixelSize(R.dimen.popup_width); // specify a value here
 
             getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
-        }
+        }*/
+
         // ... other stuff you want to do in your onStart() method
     }
 
@@ -280,7 +281,7 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
                 playPrev();
             }
         });
-        controller.setAnchorView(mControllerAnchorFrameLayout);
+        controller.setAnchorView(mTrackDescriptionRelativeLayout);
         controller.setMediaPlayer(this);
         controller.setEnabled(true);
 
