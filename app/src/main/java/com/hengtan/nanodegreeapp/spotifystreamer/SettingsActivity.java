@@ -41,6 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
      */
 
     public static final String COUNTRY_PREFERENCE_ID = "country_code_list";
+    public static final String SHOW_NOTIFICATION_PREFERENCE_ID = "notifications_controls_lock_screen";
     private static final boolean ALWAYS_SIMPLE_PREFS = true;
 
 
@@ -147,11 +148,11 @@ public class SettingsActivity extends PreferenceActivity {
 
                 if(stringValue.equals("true"))
                 {
-                    stringValue = "Show";
+                    stringValue = "true";
                 }
                 else
                 {
-                    stringValue = "Hide";
+                    stringValue = "false";
                 }
 
                 preference.setSummary(stringValue);

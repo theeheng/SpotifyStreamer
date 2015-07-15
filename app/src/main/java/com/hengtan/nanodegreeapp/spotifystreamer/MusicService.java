@@ -3,9 +3,11 @@
 package com.hengtan.nanodegreeapp.spotifystreamer;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -15,6 +17,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -51,6 +54,8 @@ public class MusicService extends Service implements
     private boolean shuffle=false;
 
     private boolean mTwoPane = false;
+
+    private boolean mIsShowNotification = true;
 
     private Random rand;
 
@@ -95,6 +100,9 @@ public class MusicService extends Service implements
         player = new MediaPlayer();
 
         initMusicPlayer();
+
+        mIsShowNotification = IsShowNotificationFromPreference();
+
     }
 
     public void initMusicPlayer(){
@@ -195,7 +203,15 @@ public class MusicService extends Service implements
             }
         }
 
-       BuildNotification(R.mipmap.uamp_ic_pause_white_48dp);
+        mIsShowNotification = IsShowNotificationFromPreference();
+
+        if(mIsShowNotification) {
+            BuildNotification(R.mipmap.uamp_ic_pause_white_48dp);
+        }
+        else
+        {
+            stopForeground(true);
+        }
     }
 
     @Override
@@ -412,5 +428,13 @@ public class MusicService extends Service implements
             this.mAlbumNameTextView.setText(playSong.getalbumName());
             this.mArtistTextView.setText(playSong.getArtistName());
         }
+    }
+
+    public boolean IsShowNotificationFromPreference()
+    {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean showNotificationPreference = sharedPrefs.getBoolean(SettingsActivity.SHOW_NOTIFICATION_PREFERENCE_ID, true);
+
+        return showNotificationPreference;
     }
 }

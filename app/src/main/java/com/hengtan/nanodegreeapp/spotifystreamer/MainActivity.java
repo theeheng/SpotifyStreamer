@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
     private boolean mTwoPane;
     private TopTenTracksFragment mTopTenFragment;
-    private PlayerFragment mPlayerFragment;
     private MenuItem mPlayingNow;
     private MenuItem mShareTrack;
     private AnimationDrawable mPlayNowAnimationDrawable;
@@ -91,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             }
             else
             {
-                mPlayerFragment.show(getFragmentManager(), PLAYERFRAGMENT_TAG);
+                Intent intent = new Intent(this, PlayerDialogActivity.class);
+                startActivity(intent);
             }
 
             return true;
@@ -131,16 +131,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
         if(mTwoPane)
         {
-            Bundle arguments = new Bundle();
+            Intent intent = new Intent(this, PlayerDialogActivity.class);
+            intent.putExtra(PlayerFragment.TRACKINDEX, trackIndex);
+            intent.putParcelableArrayListExtra(PlayerFragment.TOPTENTRACKS_PARCELABLE, tracks);
 
-            arguments.putInt(PlayerFragment.TRACKINDEX, trackIndex);
-            arguments.putParcelableArrayList(PlayerFragment.TOPTENTRACKS_PARCELABLE, tracks);
-
-            this.mPlayerFragment = new PlayerFragment();
-            this.mPlayerFragment.setTwoPane(true);
-            this.mPlayerFragment.setArguments(arguments);
-
-            mPlayerFragment.show(getFragmentManager(), PLAYERFRAGMENT_TAG);
+            startActivity(intent);
         }
     }
 

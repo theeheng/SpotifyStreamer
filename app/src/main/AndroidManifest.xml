@@ -36,6 +36,12 @@
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
+        <activity
+            android:name=".PlayerDialogActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeDialog"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
 
         <service android:name="com.hengtan.nanodegreeapp.spotifystreamer.MusicService" />
         <receiver android:name="NotificationPlayPauseButtonListener" />

@@ -164,16 +164,6 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
 
         mPlayingNowAnimationDrawable = (AnimationDrawable) mPlayingNow.getDrawable();
 
-        /*mArtistTitleView.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    Log.i("MyTag","Image button is pressed, visible in LogCat");;
-                } catch (Exception e) {
-                    Log.e("MyTag", e.toString());
-                }
-            }
-        });*/
 
         mPlayingNow.post(new Runnable() {
             @Override
@@ -325,7 +315,7 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
 
 
     private void UpdatePlayingNowImageView() {
-        if(Application.getIsPlayingNow()) {
+        if(Application.getIsPlayingNow() && (!mTwoPane)) {
 
             mPlayingNowAnimationDrawable.start();
             mPlayingNow.setVisibility(View.VISIBLE);
@@ -442,12 +432,13 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
 
     public void UpdateTopTenTracksOnPreferenceUpdate()
     {
-        String selectecCountryCode = GetCountryCodeFromPreference();
+        if(mArtist != null) {
+            String selectecCountryCode = GetCountryCodeFromPreference();
 
-        if(!selectecCountryCode.equals(mCountryCode))
-        {
-            GetTracks(selectecCountryCode);
-            ShowTracks();
+            if (!selectecCountryCode.equals(mCountryCode)) {
+                GetTracks(selectecCountryCode);
+                ShowTracks();
+            }
         }
     }
 

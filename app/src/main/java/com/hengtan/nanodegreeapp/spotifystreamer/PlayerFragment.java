@@ -11,7 +11,9 @@ import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
 import butterknife.ButterKnife;
@@ -40,6 +42,12 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
 
     @InjectView(R.id.share_icon)
     protected ImageView mShareImage;
+
+    @InjectView(R.id.track_description)
+    protected RelativeLayout mTrackDescriptionRelativeLayout;
+
+    @InjectView(R.id.controllerAnchor)
+    protected FrameLayout mControllerAnchorFrameLayout;
 
     protected Drawable mPauseDrawable;
     protected Drawable mPlayDrawable;
@@ -257,7 +265,6 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
             controller = new MusicController(getDialog().getContext() , mTwoPane);
         }
         else {
-
             controller = new MusicController(getActivity(), mTwoPane);
         }
 
@@ -273,10 +280,14 @@ public class PlayerFragment extends DialogFragment implements MediaPlayerControl
                 playPrev();
             }
         });
-
+        controller.setAnchorView(mControllerAnchorFrameLayout);
         controller.setMediaPlayer(this);
-        controller.setAnchorView(mBackgroundImage);
         controller.setEnabled(true);
+
+        if(mTwoPane) {
+            ((ViewGroup) controller.getParent()).removeView(controller);
+            mControllerAnchorFrameLayout.addView(controller);
+        }
 
     }
 
