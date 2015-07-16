@@ -1,9 +1,9 @@
 # SpotifyStreamer
 Nanodegree Project - Spotify Streamer
 
-![](https://raw.githubusercontent.com/theeheng/samples/demo1.gif)
-![](https://raw.githubusercontent.com/theeheng/samples/demo2.gif)
-![](https://raw.githubusercontent.com/theeheng/samples/demo3.gif)
+![](https://raw.githubusercontent.com/theeheng/SpotifyStreamer/master/samples/demo1.gif)
+![](https://raw.githubusercontent.com/theeheng/SpotifyStreamer/master/samples/demo2.gif)
+![](https://raw.githubusercontent.com/theeheng/SpotifyStreamer/master/samples/demo3.gif)
 
 
 User Interface - Layout  
