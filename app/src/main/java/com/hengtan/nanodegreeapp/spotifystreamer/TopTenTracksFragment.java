@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
@@ -334,7 +335,11 @@ public class TopTenTracksFragment extends Fragment implements ObservableScrollVi
             String thumbnailUrl = mArtist.getThumbnailImage();
 
             if(thumbnailUrl != null) {
-                Glide.with(getActivity()).load(thumbnailUrl).fitCenter().into(mImageView);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && (!mTwoPane)) {
+                    getActivity().postponeEnterTransition();
+                }
+                Glide.with(getActivity()).load(thumbnailUrl).listener(new GlideLoaderListener<String, GlideDrawable>(getActivity(), R.mipmap.example, mImageView)).fitCenter().into(mImageView);
             }
             else
             {
