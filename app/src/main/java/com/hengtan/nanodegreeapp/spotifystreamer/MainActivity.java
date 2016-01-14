@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             Intent intent = new Intent(this, TopTenActivity.class).putExtra(TopTenTracksFragment.ARTIST_PARCELABLE, artist);
 
             if(Build.VERSION.SDK_INT >= 21) {
+                imgView.setTransitionName("photo_thumbnail");
                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, imgView, "photo_thumbnail");
                 startActivity(intent, options.toBundle());
             }
